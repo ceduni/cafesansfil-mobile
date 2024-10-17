@@ -1,34 +1,28 @@
-import { MessageModel, IMessage } from '../models/DatabaseModels/messageModel';
+import Message from '../models/DatabaseModels/messageModel';
 
 export class MessageService {
-  public async sendMessage(senderId: string, receiverIds: string[], content: string): Promise<IMessage> {
-    const message = new MessageModel({
+  async saveMessage(senderId: string, receiverId: string, content: string) {
+    const message = new Message({
       senderId,
+      receiverId,
       content,
       timestamp: new Date(),
     });
-
-    // Here you could handle sending the message to multiple receivers
-    const promises = receiverIds.map(receiverId => {
-      const newMessage = new MessageModel({
-        senderId,
-        receiverId,
-        content,
-        timestamp: new Date(), // If you want to keep all timestamps independent
-      });
-      return newMessage.save();
-    });
-
-    await Promise.all(promises); // Wait for all messages to be saved
-    return message; // Or return something meaningful
+    await message.save();
   }
 
-  public async fetchMessagesBetween(senderId: string, receiverId: string): Promise<IMessage[]> {
-    return await MessageModel.find({
+
+  async getMessages(senderId: string, receiverId: string) {
+    const messages = await Message.find({
       $or: [
         { senderId, receiverId },
-        { senderId: receiverId, receiverId: senderId }
-      ]
-    }).sort({ timestamp: 1 }).exec(); // Sort messages by timestamp
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).sort({ timestamp: 1 });
+
+    return messages;
   }
 }
+
+export default MessageService;
+

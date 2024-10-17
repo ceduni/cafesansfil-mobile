@@ -1,4 +1,6 @@
+import 'package:app/provider/message_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MessagePage extends StatefulWidget {
   final String userName;
@@ -15,13 +17,20 @@ class _MessagePageState extends State<MessagePage> {
   final TextEditingController _messageController = TextEditingController();
   List<String> _messages = [];
 
-  void _sendMessage() {
+  void _sendMessage() async {
+    final provider = Provider.of<MessageProvider>(context, listen: false);
+
     if (_messageController.text.isNotEmpty) {
-      setState(() {
-        _messages.add(_messageController.text);
-        _messageController.clear(); // Clear the text input
-      });
+      String senderId = '';
+      String receiverId = '';
+
+      await provider.sendMessage(senderId, receiverId, _messageController.text);
+      _messageController.clear();
     }
+
+    //Pour les broadcast, on fait la meme chose mais un change String
+    //receiverId = ''; par une listes de string et on envoies le message
+    //a tout le monde
   }
 
   @override

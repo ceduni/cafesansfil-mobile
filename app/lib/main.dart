@@ -89,6 +89,10 @@ class _RootPageState extends State<RootPage> {
   ];
   @override
   Widget build(BuildContext context) {
+    /*if (condition) {
+    } else {
+      
+    }*/
     return Scaffold(
       body: pages[currentPage], //const Dashboard(),
       bottomNavigationBar: NavigationBar(

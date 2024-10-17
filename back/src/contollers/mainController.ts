@@ -4,7 +4,6 @@ import { UserRoutes } from "../routes/userRoutes";
 import { CafeRoutes } from "../routes/cafeRoutes";
 import { ShiftRoutes } from "../routes/shiftRoutes";
 import { Database } from "../database/DataBase";
-import { MessageService } from "../services/messageServices";
 import { MessageRoutes } from "../routes/messageRoutes";
 
 // Charger les variables d'environnement

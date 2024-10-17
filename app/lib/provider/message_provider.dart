@@ -1,6 +1,42 @@
-// message_provider.dart
-import 'package:flutter/material.dart';
 import 'package:app/services/message_service.dart';
-import 'package:app/modeles/message_model.dart';
+import 'package:flutter/material.dart';
+import '../modeles/message_model.dart';
 
-class MessageProvider extends ChangeNotifier {}
+class MessageProvider with ChangeNotifier {
+  final MessageService _messageService = MessageService();
+  List<Message> _messages = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  List<Message> get messages => _messages;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  Future<void> sendMessage(
+      String senderId, String receiverId, String content) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _messageService.sendMessage(senderId, receiverId, content);
+    } catch (error) {
+      _errorMessage = error.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchMessages(
+      String senderId, String receiverId, String token) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _messages = await _messageService.fetchMessages(senderId, receiverId);
+    } catch (error) {
+      _errorMessage = error.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+}

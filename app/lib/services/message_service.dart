@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/services/auth_service.dart';
+import 'package:app/config.dart';
+import 'package:app/modeles/message_model.dart';
 
 class MessageService {
   final AuthService _authService = AuthService();
@@ -43,5 +45,45 @@ class MessageService {
     // Delay before the next API call
     //  await Future.delayed(Duration(seconds: 30)); // Adjust the delay as needed
     //}
+  }
+
+  Future<void> sendMessage(
+      String senderId, String receiverId, String content) async {
+    final token = await _authService.getToken();
+    final response = await http.post(
+      Uri.parse('${Config.baseUrl}/messages'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'senderId': senderId,
+        'receiverId': receiverId,
+        'content': content,
+      }),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to send message');
+    }
+  }
+
+  Future<List<Message>> fetchMessages(
+      String senderId, String receiverId) async {
+    final token = await _authService.getToken();
+    final response = await http.get(
+      Uri.parse(
+          '${Config.baseUrl}/messages?senderId=$senderId&receiverId=$receiverId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((msg) => Message.fromJson(msg)).toList();
+    } else {
+      throw Exception('Failed to fetch messages');
+    }
   }
 }
