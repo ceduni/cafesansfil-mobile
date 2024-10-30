@@ -7,23 +7,25 @@ class CafeProvider with ChangeNotifier {
   String cafeName = Config.cafeName;
   bool _isLoading = false;
   String? _errorMessage;
-  var _Cafe;
+  var _cafe;
+  Cafe? _selectedCafe;
 
-  get Cafe => _Cafe;
+  get cafe => _cafe;
   get isLoading => _isLoading;
   get errorMessage => _errorMessage;
   bool get hasError => _errorMessage != null && _errorMessage!.isNotEmpty;
+  Cafe? get selectedCafe => _selectedCafe;
 
   CafeProvider() {
     fetchCafe();
   }
 
-  List<MenuItem> get getMenuItems => _Cafe?.menuItems ?? [];
+  List<MenuItem> get getMenuItems => _cafe?.menuItems ?? [];
 
   Future<void> fetchCafe() async {
     _isLoading = true;
     try {
-      _Cafe = await CafeService().fetchCafeByName(cafeName);
+      _cafe = await CafeService().fetchCafeByName(cafeName);
 
       _isLoading = false;
     } catch (e) {
@@ -34,5 +36,11 @@ class CafeProvider with ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  // Add a method to set the selected cafe
+  Future<void> setSelectedCafe(String cafeSlug) async {
+    _selectedCafe = await CafeService().getCafeBySlug(cafeSlug);
+    notifyListeners(); // Notify listeners that the selected cafe has changed
   }
 }

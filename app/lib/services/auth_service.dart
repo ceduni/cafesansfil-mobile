@@ -88,6 +88,64 @@ class AuthService {
     }
   }
 
+  //a modifier aprest l'ajout des routes
+  Future<void> storeUserDetails() async {
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      throw Exception("No token found");
+    }
+    final response = await http.post(
+        Uri.parse(
+            'https://cafesansfil-api-r0kj.onrender.com/api/auth/test-token'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        });
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      String email = data['email'];
+      String firstName = data['first_name'];
+      String lastName = data['last_name'];
+      String username = data['username'];
+      //String role = data['role'];
+      // Optionally update refresh token if provided
+      if ((data['email'] != null) &&
+          (data['first_name'] != null) &&
+          (data['last_name'] != null) &&
+          (data['username'] != null)) {
+        await storage.write(key: 'email', value: email);
+        await storage.write(key: 'first_name', value: firstName);
+        await storage.write(key: 'last_name', value: lastName);
+        await storage.write(key: 'username', value: username);
+        //await storage.write(key: 'role', value: role);
+      }
+    } else {
+      throw Exception('Failed to refresh token: ${response.body}');
+    }
+  }
+
+  //a modifier
+  Future<List<String>> getUserCafes(String username) async {
+    final token = await storage.read(key: 'token');
+    final response = await http.get(
+      Uri.parse(
+          'https://cafesansfil-api-r0kj.onrender.com/api/user/$username/cafes'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      // Extract café names and return as a list of strings
+      return data.map<String>((json) => json['name'] as String).toList();
+    } else {
+      throw Exception('Failed to load cafes: ${response.body}');
+    }
+  }
+
   Future<void> storeToken(String accessToken, String refreshToken) async {
     await storage.write(key: 'token', value: accessToken);
     await storage.write(key: 'refresh_token', value: refreshToken);
@@ -95,6 +153,14 @@ class AuthService {
 
   Future<String?> getToken() async {
     return await storage.read(key: 'token');
+  }
+
+  Future<String?> getUsername() async {
+    return await storage.read(key: 'username');
+  }
+
+  Future<String?> getUserRole() async {
+    return await storage.read(key: 'role');
   }
 
   bool isTokenExpired(String token) {

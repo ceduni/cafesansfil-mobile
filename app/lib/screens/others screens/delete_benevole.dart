@@ -6,17 +6,15 @@ import 'package:provider/provider.dart';
 
 import '../../config.dart';
 
-class AddBenevole extends StatefulWidget {
-  const AddBenevole({super.key});
+class DeleteBenevole extends StatefulWidget {
+  const DeleteBenevole({super.key});
 
   @override
-  State<AddBenevole> createState() => _AddBenevoleState();
+  State<DeleteBenevole> createState() => _DeleteBenevoleState();
 }
 
-class _AddBenevoleState extends State<AddBenevole> {
+class _DeleteBenevoleState extends State<DeleteBenevole> {
   bool _isLoading = false;
-  String selectedOption = 'Bénévole';
-  final List<String> options = ['Bénévole', 'Admin'];
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -25,11 +23,9 @@ class _AddBenevoleState extends State<AddBenevole> {
     double screenHeight = MediaQuery.of(context).size.height;
     Cafe? selectedCafe =
         Provider.of<CafeProvider>(context, listen: false).selectedCafe;
-    String cafeSlug = "tore-et-fraction";
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajouter un bénévole'),
+        title: const Text('Supprimer un bénévole'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,60 +62,6 @@ class _AddBenevoleState extends State<AddBenevole> {
               ),
             ),
           ),
-          // title for role
-          Container(
-            padding: EdgeInsets.only(left: screenHeight * 0.025),
-            child: const Text(
-              "Rôle",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.left,
-            ),
-          ),
-          //Dropdown button for role
-          DropdownButtonHideUnderline(
-            child: Container(
-              padding: const EdgeInsets.all(0.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blueAccent),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              width: screenWidth * 0.95,
-              margin: const EdgeInsets.all(10.0),
-              child: DropdownButton<String>(
-                value: selectedOption,
-                isExpanded: true,
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.black,
-                  size: 36,
-                ),
-                iconSize: 24,
-                elevation: 16,
-                style: const TextStyle(color: Colors.black),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedOption = newValue!;
-                  });
-                },
-                items: options.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(value,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          )),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
 
           // add benevole button
           ButtonBar(
@@ -132,9 +74,11 @@ class _AddBenevoleState extends State<AddBenevole> {
                     _isLoading = true;
                   });
                   try {
-                    //String message = await VolunteerService().addVolunteer(cafeSlug, _controller.text, selectedOption);
-                    String message = await VolunteerService().addVolunteer(
-                        "tore-et-fraction", _controller.text, selectedOption);
+                    //String message = await VolunteerService()
+                    //    .deleteVolunteer(Config.cafeName, _controller.text);
+                    String message = await VolunteerService()
+                        .deleteVolunteer("tore-et-fraction", _controller.text);
+
                     // pop up message
                     print(message);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -179,7 +123,7 @@ class _AddBenevoleState extends State<AddBenevole> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text('Ajouter'),
+                child: const Text('Confirmer la suppression'),
               ),
             ],
           ),

@@ -13,7 +13,7 @@ export class MessageRoutes {
     }
 
     private init() {
-        this._router.post("/messages", authMiddleware, this.sendMessage.bind(this));
+        this._router.post("/messages", this.sendMessage.bind(this));
         this._router.get("/messages/:senderId/:receiverId", authMiddleware, this.getMessages.bind(this));
     }
 
@@ -21,25 +21,30 @@ export class MessageRoutes {
         return this._router;
     }
 
-    private async sendMessage(req: Request, res: Response) {
-      const { senderId, receiverId, content } = req.body;
-
+    public async sendMessage(req: Request, res: Response) {
       try {
-        await this.messageService.saveMessage(senderId, receiverId, content);
-        res.status(201).json({ message: 'Message sent successfully.' });
-      } catch (error) {
-        res.status(400).json({ message: 'Error while sending message.', error });
+          const { senderId, receiverId, content } = req.body;
+          const message = await this.messageService.saveMessage(senderId, receiverId, content); // Save and return the message
+          res.status(200).send({
+              message: "Message sent successfully",
+              data: message, // Return the message data
+          });
+      } catch (err) {
+          console.error("Error sending message:", err);
+          res.status(500).send({ message: "Internal Server Error", error: err });
+      }
+  }
+  
+    public async getMessages(req: Request, res: Response) {
+      try {
+        // Extract senderId and receiverId from the route parameters instead of query
+        const { senderId, receiverId } = req.params;
+        const messages = await this.messageService.getMessages(senderId, receiverId);
+        res.status(200).send(messages);
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+        res.status(500).send({ message: "Internal Server Error", error: err });
       }
     }
-
-    private async getMessages(req: Request, res: Response) {
-      const { senderId, receiverId } = req.query;
-
-      try {
-        const messages = await this.messageService.getMessages(senderId as string, receiverId as string);
-        res.status(200).json(messages);
-      } catch (error) {
-        res.status(400).json({ message: 'Error while fetching messages.', error });
-      }
-    }
+    
 }

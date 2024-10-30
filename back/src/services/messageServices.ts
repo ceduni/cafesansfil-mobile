@@ -3,12 +3,12 @@ import Message from '../models/DatabaseModels/messageModel';
 export class MessageService {
   async saveMessage(senderId: string, receiverId: string, content: string) {
     const message = new Message({
-      senderId,
-      receiverId,
-      content,
-      timestamp: new Date(),
+        senderId,
+        receiverId,
+        content,
+        timestamp: new Date(),
     });
-    await message.save();
+    return await message.save();
   }
 
 

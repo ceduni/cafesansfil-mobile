@@ -1,6 +1,11 @@
 import 'package:app/config.dart';
+import 'package:app/modeles/Cafe.dart';
+//import 'package:app/provider/auth_provider.dart';
+import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/volunteer_provider.dart';
+import 'package:app/screens/messages/Broadcast_message.dart';
 import 'package:app/screens/others%20screens/add_benevole.dart';
+import 'package:app/screens/others%20screens/delete_benevole.dart';
 import 'package:app/screens/side%20bar/side_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
@@ -30,13 +35,20 @@ class _BenevoleState extends State<Benevole> {
   }
 
   Future<void> fetch() async {
-    // Fetch the volunteers from the database
+    Cafe? selectedCafe =
+        Provider.of<CafeProvider>(context, listen: false).selectedCafe;
     await Provider.of<VolunteerProvider>(context, listen: false)
         .fetchVolunteer();
+    /*if (selectedCafe != null) {
+      // Fetch volunteers using the staff from the selected cafe
+      await Provider.of<VolunteerProvider>(context, listen: false)
+          .fetchVolunteersByStaff(selectedCafe.staff);
+    }*/
   }
 
   @override
   Widget build(BuildContext context) {
+    final userRole = "admin";
     return Scaffold(
       drawer: const Sidebar(),
       appBar: AppBar(
@@ -78,21 +90,16 @@ class _BenevoleState extends State<Benevole> {
                               MaterialPageRoute(
                                 builder: (context) => MessagePage(
                                   userName:
-                                      "${(context.read<VolunteerProvider>().Volunteers)[index].firstName}" ??
-                                          'Unknown User',
+                                      "${(context.read<VolunteerProvider>().Volunteers)[index].username}",
                                   userEmail:
-                                      "${(context.read<VolunteerProvider>().Volunteers)[index].firstName}" ??
-                                          'Unknown Email',
+                                      "${(context.read<VolunteerProvider>().Volunteers)[index].email}",
+                                  firstName:
+                                      "${(context.read<VolunteerProvider>().Volunteers)[index].firstName}",
                                 ),
                               ),
                             );
                           },
                         ),
-                        const Icon(
-                          Icons.message,
-                          color: Colors.blue,
-                        ),
-                        const Divider(),
                       ],
                     ),
                   );
@@ -102,16 +109,63 @@ class _BenevoleState extends State<Benevole> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const AddBenevole()));
-        },
-        backgroundColor: Config.specialBlue,
-        child: const Icon(
-          Icons.add_outlined,
-          color: Colors.white,
-        ),
+      floatingActionButton: Stack(
+        children: [
+          //(Provider.of<AuthProvider>(context).userRole == 'admin')
+          if (userRole == 'admin')
+            Positioned(
+              bottom: 16,
+              right: 70, // Offset to avoid overlap
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const AddBenevole()));
+                },
+                backgroundColor: Config.specialBlue,
+                child: const Icon(
+                  Icons.add_outlined,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          // Second FloatingActionButton for broadcasting
+          if (userRole == 'admin')
+            Positioned(
+              bottom: 16,
+              right: 10, // Positioned to the right of the first button
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => BroadcastMessagePage()),
+                  );
+                },
+                backgroundColor: Config.specialBlue,
+                child: const Icon(
+                  Icons.broadcast_on_home,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          if (userRole == 'admin')
+            Positioned(
+              bottom: 85,
+              right: 10, // Positioned to the right of the first button
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DeleteBenevole()));
+                },
+                backgroundColor: Config.specialBlue,
+                child: const Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

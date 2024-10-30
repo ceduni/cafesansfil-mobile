@@ -26,11 +26,11 @@ class MessageProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchMessages(
-      String senderId, String receiverId, String token) async {
+  Future<void> fetchMessages(String senderId, String receiverId) async {
     _isLoading = true;
     notifyListeners();
     try {
+      // Fetch messages from service
       _messages = await _messageService.fetchMessages(senderId, receiverId);
     } catch (error) {
       _errorMessage = error.toString();

@@ -50,6 +50,8 @@ class MessageService {
   Future<void> sendMessage(
       String senderId, String receiverId, String content) async {
     final token = await _authService.getToken();
+    final currentTime = DateTime.now().toIso8601String();
+    print('${Config.baseUrl}/messages');
     final response = await http.post(
       Uri.parse('${Config.baseUrl}/messages'),
       headers: {
@@ -60,11 +62,14 @@ class MessageService {
         'senderId': senderId,
         'receiverId': receiverId,
         'content': content,
+        'timestamp': currentTime
       }),
     );
-
-    if (response.statusCode != 201) {
-      throw Exception('Failed to send message');
+    print('1');
+    if (response.statusCode == 200) {
+      print('Message sent successfully');
+    } else {
+      throw Exception('Failed to send message: ${response.body}');
     }
   }
 
@@ -72,8 +77,7 @@ class MessageService {
       String senderId, String receiverId) async {
     final token = await _authService.getToken();
     final response = await http.get(
-      Uri.parse(
-          '${Config.baseUrl}/messages?senderId=$senderId&receiverId=$receiverId'),
+      Uri.parse('${Config.baseUrl}/messages/$senderId/$receiverId'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -83,7 +87,7 @@ class MessageService {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((msg) => Message.fromJson(msg)).toList();
     } else {
-      throw Exception('Failed to fetch messages');
+      throw Exception('Failed to fetch messages: ${response.body}');
     }
   }
 }

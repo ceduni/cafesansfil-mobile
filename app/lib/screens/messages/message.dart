@@ -1,13 +1,19 @@
 import 'package:app/provider/message_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app/provider/auth_provider.dart';
 
 class MessagePage extends StatefulWidget {
-  final String userName;
+  final String userName; // Receiver's ID (could be username or email)
   final String userEmail;
+  final String firstName;
 
-  MessagePage({Key? key, required this.userName, required this.userEmail})
-      : super(key: key);
+  MessagePage({
+    Key? key,
+    required this.userName,
+    required this.userEmail,
+    required this.firstName,
+  }) : super(key: key);
 
   @override
   _MessagePageState createState() => _MessagePageState();
@@ -15,38 +21,74 @@ class MessagePage extends StatefulWidget {
 
 class _MessagePageState extends State<MessagePage> {
   final TextEditingController _messageController = TextEditingController();
-  List<String> _messages = [];
+  String senderId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSenderId();
+  }
+
+  Future<void> _initializeSenderId() async {
+    String? username =
+        await Provider.of<AuthProvider>(context, listen: false).getUsername();
+    setState(() {
+      senderId = username ?? ''; // Assign the username to senderId
+    });
+    await _fetchMessages(); // Retrieve messages on startup
+  }
+
+  Future<void> _fetchMessages() async {
+    final provider = Provider.of<MessageProvider>(context, listen: false);
+    String receiverId = widget.userName; // Populate with receiver's ID
+    await provider.fetchMessages(senderId, receiverId);
+  }
 
   void _sendMessage() async {
     final provider = Provider.of<MessageProvider>(context, listen: false);
 
     if (_messageController.text.isNotEmpty) {
-      String senderId = '';
-      String receiverId = '';
+      String receiverId = widget.userName; // Populate with the receiver's ID
 
       await provider.sendMessage(senderId, receiverId, _messageController.text);
       _messageController.clear();
+      await _fetchMessages(); // Refresh messages after sending one
     }
-
-    //Pour les broadcast, on fait la meme chose mais un change String
-    //receiverId = ''; par une listes de string et on envoies le message
-    //a tout le monde
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<MessageProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Messages for ${widget.userName}'),
+        title: Text('Messages for ${widget.firstName}'),
       ),
       body: Column(
         children: <Widget>[
           Expanded(
             child: ListView.builder(
-              itemCount: _messages.length,
+              itemCount: provider.messages.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_messages[index]),
+                final message = provider.messages[index];
+                final isSender = message.senderId == senderId;
+
+                return Align(
+                  alignment:
+                      isSender ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    margin:
+                        EdgeInsets.symmetric(vertical: 4.0, horizontal: 10.0),
+                    decoration: BoxDecoration(
+                      color: isSender ? Colors.blue[100] : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text(
+                      message.content,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
                 );
               },
             ),

@@ -119,4 +119,39 @@ class ShiftService {
 
     return AllShiftPlan;
   }
+
+  Future<void> createShift(Shift newShift) async {
+    final response = await http.post(
+      Uri.parse(baseUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(newShift.toJson()),
+    );
+    if (response.statusCode != 201) {
+      throw Exception('Failed to create shift');
+    }
+  }
+
+  Future<void> updateShift(String id, Shift updatedShift) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(updatedShift.toJson()),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update shift');
+    }
+  }
+
+  Future<void> addShiftDetail(
+      String matricule, ShiftDetail newShiftDetail) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/shifts/$matricule/details'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(newShiftDetail.toJson()),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to add shift detail');
+    }
+  }
 }

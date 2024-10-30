@@ -5,8 +5,14 @@ class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
 
   String? _token;
+  String? _username;
+  String? _userRole;
+  List<String> _cafes = [];
 
   String? get token => _token;
+  List<String> get cafes => _cafes;
+  String? get username => _username;
+  String? get userRole => _userRole;
 
   Future<void> login(String email, String password) async {
     try {
@@ -26,5 +32,21 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> isLoggedIn() async {
     final token = await _authService.getToken();
     return token != null;
+  }
+
+  Future<void> fetchUserCafes(String username) async {
+    _cafes = await _authService.getUserCafes(username);
+    notifyListeners();
+  }
+
+  Future<String?> getUsername() async {
+    await _authService.storeUserDetails();
+    return await _authService.getUsername();
+  }
+
+  Future<void> getUserRole() async {
+    await _authService.storeUserDetails();
+    _userRole = await _authService.getUserRole();
+    notifyListeners(); // Notify listeners that the username has changed
   }
 }

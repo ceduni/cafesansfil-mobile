@@ -26,6 +26,8 @@ class _LoginPageState extends State<LoginPage> {
         await Provider.of<AuthProvider>(context, listen: false)
             .login(email, password);
         Navigator.pushReplacementNamed(context, '/home');
+        /* on doit verifier le type de compte et rediriger vers la bonne chose ( on verifie si c'est on admin sinon on retourne benevole)*/
+        //Navigator.pushReplacementNamed(context, '/select_cafe');
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login failed: ${e.toString()}')),

@@ -54,4 +54,22 @@ class CafeService {
           'Failed to load cafe for name $cafeName from ${Config.baseUrl}');
     }
   }
+
+  Future<Cafe> getCafeBySlug(String cafeSlug) async {
+    final response = await http.post(
+        Uri.parse(
+            'https://cafesansfil-api-r0kj.onrender.com/api/cafes/$cafeSlug'),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      // Assuming the data structure returned is a map that represents a Cafe
+      return Cafe.fromJson(data);
+    } else {
+      // Handle the error according to your design
+      throw Exception('Failed to load cafe: ${response.statusCode}');
+    }
+  }
 }
