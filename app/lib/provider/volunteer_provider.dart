@@ -5,14 +5,14 @@ import 'package:app/services/volunteerService.dart';
 import 'package:flutter/material.dart';
 
 class VolunteerProvider with ChangeNotifier {
-  List<Volunteer> _Volunteers = [];
+  List<Volunteer> _volunteers = [];
   //String cafeName = Config.cafeName;
   String cafeName = Config.cafeName;
   bool _isLoading = false;
   bool _hasError = false;
   String? _errorMessage;
 
-  get Volunteers => _Volunteers;
+  get volunteers => _volunteers;
   get isLoading => _isLoading;
   get errorMessage => _errorMessage;
   bool get hasError =>
@@ -25,7 +25,7 @@ class VolunteerProvider with ChangeNotifier {
   Future<void> fetchVolunteer() async {
     _isLoading = true;
     try {
-      _Volunteers = await VolunteerService().fetchVolunteers();
+      _volunteers = await VolunteerService().fetchVolunteers();
       _isLoading = false;
     } catch (e) {
       // Handle error
@@ -47,13 +47,13 @@ class VolunteerProvider with ChangeNotifier {
       await fetchVolunteer();
 
       // Filter volunteers based on staff usernames
-      List<Volunteer> filteredVolunteers = Volunteers.where((volunteer) {
+      List<Volunteer> filteredVolunteers = volunteers.where((volunteer) {
         return staff
             .any((staffMember) => staffMember.username == volunteer.username);
       }).toList();
 
       // Update the Volunteer list to the filtered list
-      _Volunteers = filteredVolunteers;
+      _volunteers = filteredVolunteers;
     } catch (e) {
       _hasError = true;
       _errorMessage = e.toString();
@@ -61,5 +61,10 @@ class VolunteerProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void removeVolunteer(String username) {
+    _volunteers.removeWhere((volunteer) => volunteer.username == username);
+    notifyListeners(); // Notify listeners to rebuild the UI
   }
 }

@@ -1,7 +1,7 @@
 class Message {
   final String senderId;
   final String receiverId;
-  final String content;
+  String content;
   final DateTime timestamp;
 
   Message({

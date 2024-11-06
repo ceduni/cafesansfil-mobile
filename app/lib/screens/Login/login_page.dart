@@ -1,5 +1,6 @@
 import 'package:app/screens/Login/components/my_button.dart';
 import 'package:app/screens/Login/components/my_textfield.dart';
+import 'package:app/screens/Login/post_login.dart';
 import 'package:flutter/material.dart';
 import 'package:app/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
@@ -25,9 +26,13 @@ class _LoginPageState extends State<LoginPage> {
         // Appel de la méthode de login qui stocke le token
         await Provider.of<AuthProvider>(context, listen: false)
             .login(email, password);
-        Navigator.pushReplacementNamed(context, '/home');
-        /* on doit verifier le type de compte et rediriger vers la bonne chose ( on verifie si c'est on admin sinon on retourne benevole)*/
-        //Navigator.pushReplacementNamed(context, '/select_cafe');
+        //Navigator.pushReplacementNamed(context, '/home');
+        //on doit verifier le type de compte et rediriger vers la bonne chose ( on verifie si c'est on admin sinon on retourne benevole)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const PostLoginRedirectPage()),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login failed: ${e.toString()}')),

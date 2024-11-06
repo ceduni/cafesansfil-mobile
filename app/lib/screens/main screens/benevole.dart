@@ -1,11 +1,11 @@
 import 'package:app/config.dart';
 import 'package:app/modeles/Cafe.dart';
-//import 'package:app/provider/auth_provider.dart';
+import 'package:app/services/VolunteerService.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/volunteer_provider.dart';
 import 'package:app/screens/messages/Broadcast_message.dart';
 import 'package:app/screens/others%20screens/add_benevole.dart';
-import 'package:app/screens/others%20screens/delete_benevole.dart';
 import 'package:app/screens/side%20bar/side_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
@@ -48,7 +48,7 @@ class _BenevoleState extends State<Benevole> {
 
   @override
   Widget build(BuildContext context) {
-    final userRole = "admin";
+    final userRole = "admin"; // Replace with your actual user role logic
     return Scaffold(
       drawer: const Sidebar(),
       appBar: AppBar(
@@ -67,40 +67,52 @@ class _BenevoleState extends State<Benevole> {
             return Center(
               child: ListView.builder(
                 itemCount:
-                    (context.read<VolunteerProvider>().Volunteers).length,
+                    (context.read<VolunteerProvider>().volunteers).length,
                 itemBuilder: (context, index) {
+                  final volunteer =
+                      (context.read<VolunteerProvider>().volunteers)[index];
                   return Padding(
                     padding: const EdgeInsets.all(3.0),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage((context
-                                    .read<VolunteerProvider>()
-                                    .Volunteers)[index]
-                                .photoUrl),
+                    child: Slidable(
+                      endActionPane: ActionPane(
+                        motion: const DrawerMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) {
+                              // Pass the VolunteerProvider instance to the confirmation dialog
+                              final volunteerProvider =
+                                  Provider.of<VolunteerProvider>(context,
+                                      listen: false);
+                              _showDeleteConfirmationDialog(context,
+                                  volunteer.username, volunteerProvider);
+                            },
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete,
+                            label: 'Delete',
                           ),
-                          title: Text(
-                              "${(context.read<VolunteerProvider>().Volunteers)[index].firstName} "),
-                          subtitle: Text(
-                              AppLocalizations.of(context)!.volunteer_text),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MessagePage(
-                                  userName:
-                                      "${(context.read<VolunteerProvider>().Volunteers)[index].username}",
-                                  userEmail:
-                                      "${(context.read<VolunteerProvider>().Volunteers)[index].email}",
-                                  firstName:
-                                      "${(context.read<VolunteerProvider>().Volunteers)[index].firstName}",
-                                ),
-                              ),
-                            );
-                          },
+                        ],
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(volunteer.photoUrl),
                         ),
-                      ],
+                        title: Text("${volunteer.firstName} "),
+                        subtitle:
+                            Text(AppLocalizations.of(context)!.volunteer_text),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MessagePage(
+                                userName: volunteer.username,
+                                userEmail: volunteer.email,
+                                firstName: volunteer.firstName,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   );
                 },
@@ -147,26 +159,51 @@ class _BenevoleState extends State<Benevole> {
                 ),
               ),
             ),
-          if (userRole == 'admin')
-            Positioned(
-              bottom: 85,
-              right: 10, // Positioned to the right of the first button
-              child: FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const DeleteBenevole()));
-                },
-                backgroundColor: Config.specialBlue,
-                child: const Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
-              ),
-            ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showDeleteConfirmationDialog(BuildContext context,
+      String username, VolunteerProvider volunteerProvider) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Deletion"),
+          content:
+              Text("Are you sure you want to delete $username as a volunteer?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Call the delete method from your VolunteerService
+                String response = await VolunteerService()
+                    .deleteVolunteer("tore-et-fraction", username);
+
+                // Remove the volunteer from the list if deletion was successful
+                if (response == "Success: Volunteer deleted successfully.") {
+                  volunteerProvider
+                      .removeVolunteer(username); // Update the provider's list
+                }
+
+                // Show a Snackbar with the response
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(response)),
+                );
+
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("Delete"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

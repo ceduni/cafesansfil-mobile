@@ -108,7 +108,6 @@ class AuthService {
       String firstName = data['first_name'];
       String lastName = data['last_name'];
       String username = data['username'];
-      //String role = data['role'];
       // Optionally update refresh token if provided
       if ((data['email'] != null) &&
           (data['first_name'] != null) &&
@@ -118,7 +117,6 @@ class AuthService {
         await storage.write(key: 'first_name', value: firstName);
         await storage.write(key: 'last_name', value: lastName);
         await storage.write(key: 'username', value: username);
-        //await storage.write(key: 'role', value: role);
       }
     } else {
       throw Exception('Failed to refresh token: ${response.body}');

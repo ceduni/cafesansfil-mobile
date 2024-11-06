@@ -30,7 +30,8 @@ class MessageProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      // Fetch messages from service
+      // Fetch messages without decrypting
+      _messages.clear();
       _messages = await _messageService.fetchMessages(senderId, receiverId);
     } catch (error) {
       _errorMessage = error.toString();

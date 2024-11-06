@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:app/config.dart';
 import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/language_provider.dart';
 import 'package:app/provider/order_provider.dart';
@@ -8,10 +7,7 @@ import 'package:app/provider/period_selector_provider.dart';
 import 'package:app/provider/shift_provider.dart';
 import 'package:app/provider/stock_provider.dart';
 import 'package:app/provider/volunteer_provider.dart';
-import 'package:app/screens/main%20screens/article.dart';
-import 'package:app/screens/main%20screens/benevole.dart';
-import 'package:app/screens/main%20screens/dashboard.dart';
-import 'package:app/screens/main%20screens/horaire.dart';
+import 'package:app/root_page.dart';
 import 'package:app/screens/others%20screens/cafe_page_select.dart';
 import 'package:app/screens/setting%20options/settings_page.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +17,6 @@ import 'package:provider/provider.dart';
 import 'package:app/provider/auth_provider.dart';
 import 'package:app/screens/Login/login_page.dart';
 import 'package:app/provider/message_provider.dart';
-//import 'package:app/screens/messages/message_home_page.dart';
 
 void main() {
   runApp(
@@ -63,139 +58,10 @@ class MyApp extends StatelessWidget {
             '/settings': (context) => const SettingsPage(),
             '/home': (context) => const RootPage(),
             '/login': (context) => const LoginPage(),
-            //'/messages': (context) => MessageHomePage(),
             '/select_cafe': (context) => const SelectCafePage(),
           },
         );
       },
     );
-  }
-}
-
-class RootPage extends StatefulWidget {
-  const RootPage({super.key});
-
-  @override
-  State<RootPage> createState() => _RootPageState();
-}
-
-class _RootPageState extends State<RootPage> {
-  int currentPage = 1;
-  List<Widget> pagesadmin = [
-    // barre de navigation
-    const Benevole(),
-    const Dashboard(),
-    const Horaire(),
-    const Article(),
-  ];
-  List<Widget> pagesbenevole = [
-    // barre de navigation
-    const Benevole(),
-    const Horaire(),
-    const Article(),
-  ];
-  @override
-  Widget build(BuildContext context) {
-    //final userRole = Provider.of<AuthProvider>(context).userRole;
-    final userRole = "admin";
-    if (userRole != "admin") {
-      return Scaffold(
-        body: pagesbenevole[currentPage], //const Dashboard(),
-        bottomNavigationBar: NavigationBar(
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(
-                Icons.volunteer_activism,
-                color: Colors.white,
-              ),
-              label: AppLocalizations.of(context)!
-                  .bottomNavigationBar_volunteerButtonText,
-            ),
-            NavigationDestination(
-              icon: const Icon(
-                Icons.access_time,
-                color: Colors.white,
-              ),
-              label: AppLocalizations.of(context)!
-                  .bottomNavigationBar_hourlyButtonText,
-            ),
-            NavigationDestination(
-              icon: const Icon(
-                Icons.article,
-                color: Colors.white,
-              ),
-              label: AppLocalizations.of(context)!
-                  .bottomNavigationBar_articleButtonText,
-            ),
-            /*const NavigationDestination(
-                icon: Icon(
-                  Icons.message,
-                  color: Colors.white,
-                ),
-                label: "Messages"),*/
-          ],
-          onDestinationSelected: (int index) {
-            setState(() {
-              currentPage = index;
-            });
-          },
-          selectedIndex: currentPage,
-          backgroundColor: Config.specialBlue,
-        ),
-      );
-    } else {
-      return Scaffold(
-        body: pagesadmin[currentPage], //const Dashboard(),
-        bottomNavigationBar: NavigationBar(
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(
-                Icons.volunteer_activism,
-                color: Colors.white,
-              ),
-              label: AppLocalizations.of(context)!
-                  .bottomNavigationBar_volunteerButtonText,
-            ),
-            NavigationDestination(
-              icon: const Icon(
-                Icons.dashboard,
-                color: Colors.white,
-              ),
-              label: AppLocalizations.of(context)!
-                  .bottomNavigationBar_dashboardButtonText,
-            ),
-            NavigationDestination(
-              icon: const Icon(
-                Icons.access_time,
-                color: Colors.white,
-              ),
-              label: AppLocalizations.of(context)!
-                  .bottomNavigationBar_hourlyButtonText,
-            ),
-            NavigationDestination(
-              icon: const Icon(
-                Icons.article,
-                color: Colors.white,
-              ),
-              label: AppLocalizations.of(context)!
-                  .bottomNavigationBar_articleButtonText,
-            ),
-            /*const NavigationDestination(
-              icon: Icon(
-                Icons.message,
-                color: Colors.white,
-              ),
-              label: "Messages"),*/
-          ],
-          onDestinationSelected: (int index) {
-            setState(() {
-              currentPage = index;
-            });
-          },
-          selectedIndex: currentPage,
-          backgroundColor: Config.specialBlue,
-        ),
-      );
-    }
   }
 }

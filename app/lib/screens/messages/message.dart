@@ -1,3 +1,4 @@
+import 'package:app/modeles/message_model.dart';
 import 'package:app/provider/message_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class MessagePage extends StatefulWidget {
 class _MessagePageState extends State<MessagePage> {
   final TextEditingController _messageController = TextEditingController();
   String senderId = '';
+  List<Message> message = [];
 
   @override
   void initState() {
@@ -58,63 +60,79 @@ class _MessagePageState extends State<MessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<MessageProvider>(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Messages for ${widget.firstName}'),
-      ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: ListView.builder(
-              itemCount: provider.messages.length,
-              itemBuilder: (context, index) {
-                final message = provider.messages[index];
-                final isSender = message.senderId == senderId;
-
-                return Align(
-                  alignment:
-                      isSender ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    padding: EdgeInsets.all(8.0),
-                    margin:
-                        EdgeInsets.symmetric(vertical: 4.0, horizontal: 10.0),
-                    decoration: BoxDecoration(
-                      color: isSender ? Colors.blue[100] : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Text(
-                      message.content,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                );
-              },
+    //final provider = Provider.of<MessageProvider>(context);
+    return Consumer<MessageProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Messages for ${widget.firstName}'),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Type your message here...',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+            body: Center(
+              child: CircularProgressIndicator(), // Show loading spinner
             ),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Messages for ${widget.firstName}'),
           ),
-        ],
-      ),
+          body: Column(
+            children: <Widget>[
+              Expanded(
+                child: ListView.builder(
+                  itemCount: provider.messages.length,
+                  itemBuilder: (context, index) {
+                    final message = provider.messages[index];
+                    final isSender = message.senderId == senderId;
+
+                    return Align(
+                      alignment: isSender
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        padding: EdgeInsets.all(15.0),
+                        margin: EdgeInsets.symmetric(
+                            vertical: 4.0, horizontal: 10.0),
+                        decoration: BoxDecoration(
+                          color: isSender ? Colors.blue[100] : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Text(
+                          message.content,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          hintText: 'Type your message here...',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send),
+                      color: Colors.blue[300],
+                      onPressed: _sendMessage,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

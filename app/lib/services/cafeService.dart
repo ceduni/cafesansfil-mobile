@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/config.dart';
 import 'package:app/modeles/Cafe.dart';
+import 'package:uuid/uuid.dart';
 
 class CafeService {
   /*
@@ -56,7 +57,7 @@ class CafeService {
   }
 
   Future<Cafe> getCafeBySlug(String cafeSlug) async {
-    final response = await http.post(
+    final response = await http.get(
         Uri.parse(
             'https://cafesansfil-api-r0kj.onrender.com/api/cafes/$cafeSlug'),
         headers: {
@@ -70,6 +71,49 @@ class CafeService {
     } else {
       // Handle the error according to your design
       throw Exception('Failed to load cafe: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Cafe>> getAllCafeList() async {
+    final response = await http.get(
+        Uri.parse(
+            'https://cafesansfil-api-r0kj.onrender.com/api/cafes?sort_by=name&page=1&limit=40'),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+    if (response.statusCode == 200) {
+      final List<dynamic> cafesJson =
+          json.decode(response.body); // Decode the response body
+
+      // Mapping through the list of cafes and converting to Cafe objects
+      List<Cafe> cafes = cafesJson.map((json) {
+        final cafe = Cafe.fromJson(json);
+        return Cafe(
+          id: cafe.id, // Setting the id to an empty string as requested
+          cafeId: cafe.cafeId,
+          name: cafe.name,
+          slug: cafe.slug,
+          previousSlugs: cafe.previousSlugs,
+          description: cafe.description,
+          imageUrl: cafe.imageUrl,
+          faculty: cafe.faculty,
+          isOpen: cafe.isOpen,
+          statusMessage: cafe.statusMessage,
+          openingHours: cafe.openingHours,
+          location: cafe.location,
+          contact: cafe.contact,
+          socialMedia: cafe.socialMedia,
+          paymentMethods: cafe.paymentMethods,
+          additionalInfo: cafe.additionalInfo,
+          staff: cafe.staff,
+          menuItems: cafe.menuItems,
+        );
+      }).toList();
+
+      return cafes;
+    } else {
+      // Handle the error; you might want to throw an exception or return an empty list
+      throw Exception('Failed to load cafes');
     }
   }
 }

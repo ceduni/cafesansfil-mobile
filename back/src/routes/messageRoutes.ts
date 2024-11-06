@@ -14,7 +14,7 @@ export class MessageRoutes {
 
     private init() {
         this._router.post("/messages", this.sendMessage.bind(this));
-        this._router.get("/messages/:senderId/:receiverId", authMiddleware, this.getMessages.bind(this));
+        this._router.get("/messages/:senderId/:receiverId", this.getMessages.bind(this));
     }
 
     public get router(): Router {

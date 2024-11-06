@@ -1,5 +1,5 @@
 class Shift {
-  final String id;
+  final String? id;
   final String cafeName;
   final String matricule;
   final List<ShiftDetail> shifts;

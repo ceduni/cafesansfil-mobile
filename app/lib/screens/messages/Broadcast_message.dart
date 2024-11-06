@@ -1,6 +1,6 @@
 import 'package:app/provider/auth_provider.dart';
+import 'package:app/provider/message_provider.dart';
 import 'package:app/provider/volunteer_provider.dart';
-import 'package:app/services/message_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,13 +11,14 @@ class BroadcastMessagePage extends StatefulWidget {
 
 class _BroadcastMessagePageState extends State<BroadcastMessagePage> {
   List<String> selectedVolunteers = [];
+  List<String> volunteersID = [];
   TextEditingController _messageController = TextEditingController();
   bool _isDropdownOpen = false;
 
   @override
   Widget build(BuildContext context) {
     final volunteerProvider = Provider.of<VolunteerProvider>(context);
-    final volunteers = volunteerProvider.Volunteers;
+    final volunteers = volunteerProvider.volunteers;
 
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +40,7 @@ class _BroadcastMessagePageState extends State<BroadcastMessagePage> {
               ),
               child: Column(
                 children: [
-                  Text('Selected Volunteers: ${selectedVolunteers.join(', ')}'),
+                  Text('Selected Volunteers: ${volunteersID.join(', ')}'),
                   SizedBox(height: 8),
                   Icon(_isDropdownOpen
                       ? Icons.arrow_drop_up
@@ -55,13 +56,15 @@ class _BroadcastMessagePageState extends State<BroadcastMessagePage> {
                 children: volunteers.map<Widget>((volunteer) {
                   return CheckboxListTile(
                     title: Text(volunteer.firstName),
-                    value: selectedVolunteers.contains(volunteer.username),
+                    value: volunteersID.contains(volunteer.firstName),
                     onChanged: (bool? value) {
                       setState(() {
                         if (value == true) {
                           selectedVolunteers.add(volunteer.username);
+                          volunteersID.add(volunteer.firstName);
                         } else {
                           selectedVolunteers.remove(volunteer.username);
+                          volunteersID.remove(volunteer.firstName);
                         }
                       });
                     },
@@ -87,9 +90,10 @@ class _BroadcastMessagePageState extends State<BroadcastMessagePage> {
                 String? username =
                     await Provider.of<AuthProvider>(context, listen: false)
                         .getUsername();
-                final messageService = MessageService();
+                final provider =
+                    Provider.of<MessageProvider>(context, listen: false);
                 for (String volunteerUsername in selectedVolunteers) {
-                  await messageService.sendMessage(
+                  await provider.sendMessage(
                       username!, volunteerUsername, _messageController.text);
                 }
                 ScaffoldMessenger.of(context).showSnackBar(

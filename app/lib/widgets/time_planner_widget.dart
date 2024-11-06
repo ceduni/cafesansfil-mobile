@@ -43,7 +43,6 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
             now.year, now.month, now.day, _endTime.hour, _endTime.minute);
 
         // Create a new ShiftDetail based on user input
-        print('1');
         ShiftDetail newShiftDetail = ShiftDetail(
           date: startTime,
           startTime: '${_startTime.hour}:${_startTime.minute}',
@@ -53,17 +52,18 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
         String matricule = "20099561";
 
         // Call provider method to add shift detail
-        print('2');
         Provider.of<ShiftProvider>(context, listen: false)
             .addShiftDetail(matricule, newShiftDetail)
             .then((_) {
-          setState(() {
-            tasks.clear();
-            tasks.addAll(Provider.of<ShiftProvider>(context, listen: false)
-                .shiftsToDisplay);
-          });
+          // Check if the widget is still mounted
+          if (mounted) {
+            setState(() {
+              tasks.clear();
+              tasks.addAll(Provider.of<ShiftProvider>(context, listen: false)
+                  .shiftsToDisplay);
+            });
+          }
         });
-        print('3');
       });
       _taskController.clear();
       Navigator.of(context).pop();

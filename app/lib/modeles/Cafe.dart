@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 class Cafe {
-  final String id;
+  final String? id;
   final String cafeId;
   final String name;
   final String slug;
@@ -43,14 +43,14 @@ class Cafe {
   });
 
   factory Cafe.fromJson(Map<String, dynamic> json) {
-    var idBuffer = json['cafe_id']['data'] as List<dynamic>;
+    /*var idBuffer = json['cafe_id']['data'] as List<dynamic>;
     Uint8List idBytes =
         Uint8List.fromList(idBuffer.map((i) => i as int).toList());
     String cafeId = base64.encode(idBytes); // Convertir en base64 si nécessaire
-
+    */
     return Cafe(
       id: json['_id'],
-      cafeId: cafeId,
+      cafeId: json['cafe_id'],
       name: json['name'],
       slug: json['slug'],
       previousSlugs: List<String>.from(json['previous_slugs']),
@@ -155,7 +155,7 @@ class TimeBlock {
 class Location {
   final String pavillon;
   final String local;
-  final String id;
+  final String? id;
 
   Location({required this.pavillon, required this.local, required this.id});
 
@@ -177,7 +177,7 @@ class Location {
 }
 
 class Contact {
-  final String email;
+  final String? email;
   final String? phoneNumber;
   final String? website;
   final String? id;
@@ -209,8 +209,8 @@ class Contact {
 }
 
 class SocialMedia {
-  final String platformName;
-  final String link;
+  final String? platformName;
+  final String? link;
 
   SocialMedia({required this.platformName, required this.link});
 
@@ -230,15 +230,16 @@ class SocialMedia {
 }
 
 class PaymentMethod {
-  final String method;
-  final double minimum;
+  final String? method;
+  final String? minimum;
 
   PaymentMethod({required this.method, required this.minimum});
 
   factory PaymentMethod.fromJson(Map<String, dynamic> json) {
     return PaymentMethod(
       method: json['method'],
-      minimum: double.parse(json['minimum']['\$numberDecimal']),
+      minimum: json['minimum'],
+      //minimum: double.parse(json['minimum']['\$numberDecimal']),
     );
   }
 
@@ -251,9 +252,9 @@ class PaymentMethod {
 }
 
 class AdditionalInfo {
-  final String id;
-  final String type;
-  final String value;
+  final String? id;
+  final String? type;
+  final String? value;
   final DateTime start;
   final DateTime? end;
 
@@ -287,7 +288,7 @@ class AdditionalInfo {
 }
 
 class Staff {
-  final String id;
+  final String? id;
   final String username;
   final String role;
 
@@ -311,8 +312,8 @@ class Staff {
 }
 
 class MenuItem {
-  final String id;
-  final List<int> itemId; // Pour le Buffer, utiliser une liste d'entiers
+  final String? id;
+  final String itemId; // Pour le Buffer, utiliser une liste d'entiers
   final String name;
   final String slug;
   final List<String> tags;
@@ -338,7 +339,7 @@ class MenuItem {
   });
 
   factory MenuItem.fromJson(Map<String, dynamic> json) {
-    var itemIdList = List<int>.from(json['item_id']['data']);
+    //var itemIdList = List<int>.from(json['item_id']['data']);
     var tagList = List<String>.from(json['tags']);
     var optionList = (json['options'] as List)
         .map((i) => MenuItemOption.fromJson(i))
@@ -346,13 +347,14 @@ class MenuItem {
 
     return MenuItem(
       id: json['_id'],
-      itemId: itemIdList,
+      itemId: json['item_id'],
       name: json['name'],
       slug: json['slug'],
       tags: tagList,
       description: json['description'],
       imageUrl: json['image_url'],
-      price: double.parse(json['price']['\$numberDecimal']),
+      //price: double.parse(json['price']['\$numberDecimal']),
+      price: double.parse(json['price']),
       inStock: json['in_stock'],
       category: json['category'],
       options: optionList,
@@ -380,7 +382,7 @@ class MenuItem {
 }
 
 class MenuItemOption {
-  final String id;
+  final String? id;
   final String type;
   final String value;
   final double fee;
@@ -397,7 +399,8 @@ class MenuItemOption {
       id: json['_id'],
       type: json['type'],
       value: json['value'],
-      fee: double.parse(json['fee']['\$numberDecimal']),
+      //fee: double.parse(json['fee']['\$numberDecimal']),
+      fee: double.parse(json['fee']),
     );
   }
 
@@ -409,4 +412,13 @@ class MenuItemOption {
       'fee': {'\$numberDecimal': fee.toString()},
     };
   }
+}
+
+class CafeRoleInfo {
+  final String cafeName;
+  final String cafeSlug;
+  final String role;
+
+  CafeRoleInfo(
+      {required this.cafeName, required this.cafeSlug, required this.role});
 }

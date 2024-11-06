@@ -34,19 +34,18 @@ class AuthProvider extends ChangeNotifier {
     return token != null;
   }
 
-  Future<void> fetchUserCafes(String username) async {
-    _cafes = await _authService.getUserCafes(username);
-    notifyListeners();
-  }
-
   Future<String?> getUsername() async {
     await _authService.storeUserDetails();
     return await _authService.getUsername();
   }
 
-  Future<void> getUserRole() async {
-    await _authService.storeUserDetails();
-    _userRole = await _authService.getUserRole();
+  void setTheUserName(String? username) {
+    _username = username; // Set the username
+    notifyListeners(); // Notify listeners that the username has changed
+  }
+
+  void setTheUserRole(String? userRole) {
+    _userRole = userRole; // Set the username
     notifyListeners(); // Notify listeners that the username has changed
   }
 }

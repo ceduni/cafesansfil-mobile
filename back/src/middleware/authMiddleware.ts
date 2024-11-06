@@ -1,18 +1,23 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { UserModel } from '../models/DatabaseModels/userModel';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken"; // Make sure to install this package
+import { config } from 'dotenv';
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-    if (!token) return res.status(401).json({ message: "Token not provided" });
+config(); // Load environment variables
+
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers.authorization?.split(" ")[1]; // Get the token from the Authorization header
+
+    if (!token) {
+        return res.status(403).send({ message: "Access denied, no token provided." });
+    }
 
     try {
-        const decoded: any = jwt.verify(token, process.env.PHRASE_PASS!);
-        const user = await UserModel.findOne({ _id: decoded._id, "authTokens.authToken": token }).exec();
-        if (!user) return res.status(401).json({ message: "User not found" });
-        req.user = user; // Store user information in the request
-        next(); // Move to the next middleware or route handler
-    } catch (err) {
-        res.status(401).json({ message: "Invalid token", error: err });
+        console.log(token);
+        const decoded = jwt.verify(token, process.env.PHRASE_PASS!); // Verify the token
+        req.user = decoded; // Attach the decoded user information to the request
+        next(); // Proceed to the next middleware or route handler
+    } catch (error) {
+        console.error("Token verification failed:", error);
+        return res.status(401).send({ message: "Invalid token." });
     }
 };

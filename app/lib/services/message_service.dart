@@ -76,6 +76,7 @@ class MessageService {
   Future<List<Message>> fetchMessages(
       String senderId, String receiverId) async {
     final token = await _authService.getToken();
+    //print(token);
     final response = await http.get(
       Uri.parse('${Config.baseUrl}/messages/$senderId/$receiverId'),
       headers: {
