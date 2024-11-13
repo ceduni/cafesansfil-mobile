@@ -2,6 +2,7 @@ import { IShift, IShiftDetail, ShiftModel } from "../models/DatabaseModels/shift
 
 export class ShiftService {
   public constructor() {}
+
   public async getShifts(): Promise<IShift[]> {
     try {
       const result = await ShiftModel.find().exec();
@@ -14,59 +15,97 @@ export class ShiftService {
 
   public async getShiftsByMatricule(matricule: string): Promise<IShift | null> {
     try {
-      const result = await ShiftModel.findOne({ matricule: matricule }).exec();
+      const result = await ShiftModel.findOne({ 'matricules.matricule': matricule }).exec();
       return result;
     } catch (err) {
       console.error("Error fetching shift data:", err);
       return null;
     }
   }
-  public async createShift(newShift: IShift): Promise<IShift> {
+
+  public async createShift(cafeName: string): Promise<IShift | null> {
     try {
-        const shift = new ShiftModel(newShift);
-        return await shift.save();
+      const newShift = new ShiftModel({ cafeName, matricules: [] });
+      return await newShift.save();
     } catch (err) {
-        console.error("Error creating shift:", err);
-        throw err;
-    }
-  }
-  
-  public async addShiftDetail(matricule: string, newShiftDetail: IShiftDetail): Promise<IShift | null> {
-    try {
-        const shift = await ShiftModel.findOne({ matricule: matricule }).exec(); // Find shift by matricule
-        if (!shift) {
-            throw new Error("Shift not found");
-        }
-        shift.shift.push(newShiftDetail); // Add new shift detail to the shift array
-        return await shift.save(); // Save the updated shift
-    } catch (err) {
-        console.error("Error adding shift detail:", err);
-        throw err;
+      console.error("Error creating new shift:", err);
+      return null;
     }
   }
 
-
-
-  public async updateShift(id: string, updatedShift: Partial<IShift>): Promise<IShift | null> {
+  public async addShiftDetail(cafeName: string, matricule: string, shiftDetail: IShiftDetail): Promise<IShift | null> {
     try {
-        const shift = await ShiftModel.findByIdAndUpdate(id, updatedShift, { new: true }).exec();
-        return shift;
+      const result = await ShiftModel.findOneAndUpdate(
+        { cafeName, 'matricules.matricule': matricule },
+        { $push: { 'matricules.$.shifts': shiftDetail } },
+        { new: true }
+      ).exec();
+      return result;
     } catch (err) {
-        console.error("Error updating shift:", err);
-        throw err;
+      console.error("Error adding shift detail:", err);
+      return null;
     }
   }
-  // New method for checking ownership
-  public async shiftBelongsToUser(shiftId: string, userId: string): Promise<boolean> {
+
+  public async updateShift(cafeName: string, matricule: string, date: Date, updatedShiftDetail: IShiftDetail): Promise<IShift | null> {
     try {
-        const shift = await ShiftModel.findById(shiftId).exec();
-        if (!shift) {
-            return false;
-        }
-        return shift.matricule === userId; // Check ownership
+      const result = await ShiftModel.findOneAndUpdate(
+        { cafeName, 'matricules.matricule': matricule, 'matricules.shifts.date': date },
+        { $set: { 'matricules.$.shifts.$[elem]': updatedShiftDetail } },
+        { new: true, arrayFilters: [{ 'elem.date': date }] }
+      ).exec();
+      return result;
     } catch (err) {
-        console.error("Error checking shift ownership:", err);
-        return false; // If there is an error
+      console.error("Error updating shift detail:", err);
+      return null;
+    }
+  }
+
+  public async removeShiftDetail(cafeName: string, matricule: string, date: Date): Promise<IShift | null> {
+    try {
+      const result = await ShiftModel.findOneAndUpdate(
+        { cafeName, 'matricules.matricule': matricule },
+        { $pull: { 'matricules.$.shifts': { date: date } } },
+        { new: true }
+      ).exec();
+      return result;
+    } catch (err) {
+      console.error("Error removing shift detail:", err);
+      return null;
+    }
+  }
+
+  public async isShiftDetailConfirmed(cafeName: string, matricule: string, date: Date): Promise<boolean | null> {
+    try {
+      const result = await ShiftModel.findOne(
+        { cafeName, 'matricules.matricule': matricule, 'matricules.shifts.date': date },
+        { 'matricules.$.shifts.$': 1 } 
+      ).exec();
+
+      if (result && result.matricules.length > 0) {
+        const shift = result.matricules[0].shifts.find((s: IShiftDetail) => s.date === date);
+        return shift ? shift.confirmed : null;
+      }
+
+      return null; 
+    } catch (err) {
+      console.error("Error checking if shift detail is confirmed:", err);
+      return null;
+    }
+  }
+
+  // Method to update the confirmed status of a shift detail
+  public async updateShiftConfirmation(cafeName: string, matricule: string, date: Date, confirmed: boolean): Promise<IShift | null> {
+    try {
+      const result = await ShiftModel.findOneAndUpdate(// they say findOneAndUpdate is faster
+        { cafeName, 'matricules.matricule': matricule, 'matricules.shifts.date': date },
+        { $set: { 'matricules.$.shifts.$[elem].confirmed': confirmed } }, 
+        { new: true, arrayFilters: [{ 'elem.date': date }] }
+      ).exec();
+      return result;
+    } catch (err) {
+      console.error("Error updating the confirmed status of shift detail:", err);
+      return null;
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:app/screens/Login/post_login.dart';
 import 'package:flutter/material.dart';
 import 'package:app/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,10 +16,20 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  int _selectedRole = 1; // 0 = Volunteer, 1 = Neutral, 2 = Admin
 
   void _login() async {
     if (_emailController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
+      // Check if the selected role is either Admin (2) or Volunteer (0)
+      if (_selectedRole == 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Please select either Volunteer or Admin.')),
+        );
+        return;
+      }
+
       final String email = _emailController.text.trim();
       final String password = _passwordController.text.trim();
 
@@ -26,8 +37,14 @@ class _LoginPageState extends State<LoginPage> {
         // Appel de la méthode de login qui stocke le token
         await Provider.of<AuthProvider>(context, listen: false)
             .login(email, password);
-        //Navigator.pushReplacementNamed(context, '/home');
-        //on doit verifier le type de compte et rediriger vers la bonne chose ( on verifie si c'est on admin sinon on retourne benevole)
+        // Redirect based on user role
+        if (_selectedRole == 0) {
+          Provider.of<AuthProvider>(context, listen: false)
+              .setTheUserRole('Bénévole');
+        } else {
+          Provider.of<AuthProvider>(context, listen: false)
+              .setTheUserRole('Admin');
+        }
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -43,7 +60,13 @@ class _LoginPageState extends State<LoginPage> {
         const SnackBar(content: Text('Please fill in all fields.')),
       );
     }
-  } //
+  }
+
+  void _selectRole(int index) {
+    setState(() {
+      _selectedRole = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +76,11 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            //logo app
             const SizedBox(height: 50),
             Image.asset('images/logo.png', width: 200, height: 200),
             const SizedBox(height: 50),
-            //Email textField
+
+            // Email textField
             MyTextField(
               hintText: "email",
               obscureText: false,
@@ -66,20 +89,73 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 20),
 
-            //PassWord textField
+            // Password textField
             MyTextField(
               hintText: "Password",
               obscureText: true,
               controller: _passwordController,
             ),
 
+            const SizedBox(height: 20),
+
+            Text('choose account the Type'),
+
+            const SizedBox(height: 20),
+
+            // Role Selector (ToggleButtons)
+            ToggleButtons(
+              onPressed: _selectRole,
+              borderRadius: BorderRadius.circular(50.0),
+              fillColor: Color.fromARGB(255, 138, 199, 249),
+              selectedColor: Colors.white,
+              isSelected: List.generate(3, (index) => _selectedRole == index),
+              children: const <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Volunteer'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Neutral'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Admin'),
+                ),
+              ],
+            ),
+
+            /* // other UI
+            ToggleSwitch(
+              minWidth: 90.0,
+              cornerRadius: 20.0,
+              activeBgColors: [
+                const [Color.fromARGB(255, 138, 199, 249)],
+                const [Color.fromARGB(255, 138, 199, 249)]
+              ],
+              activeFgColor: Colors.white,
+              inactiveBgColor: Colors.white,
+              inactiveFgColor: Colors.black,
+              initialLabelIndex: 1,
+              totalSwitches: 2,
+              labels: ['Volunteer', 'Admin'],
+              radiusStyle: true,
+              onToggle: (index) {
+                /*
+                setState(() {
+                  _selectedRole = index; // Set selected account type
+                });*/
+                print('switched to: $index');
+              },
+            ),*/
+
             const SizedBox(height: 35),
 
-            //Login Button
+            // Login Button
             MyButton(
               text: "Login",
               onTap: _login,
-            )
+            ),
           ],
         ),
       ),

@@ -5,7 +5,6 @@ import 'package:app/screens/main%20screens/benevole.dart';
 import 'package:app/screens/main%20screens/dashboard.dart';
 import 'package:app/screens/main%20screens/horaire.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:provider/provider.dart';
 

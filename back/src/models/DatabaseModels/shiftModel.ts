@@ -5,31 +5,80 @@ interface IShiftDetail extends Document {
   date: Date;
   startTime: string;
   endTime: string;
+  confirmed: boolean;
 }
 
-// Interface for the main Shift document
+// Interface for the main Matricule Shift document
+interface IMatriculeShift {
+  matricule: string;
+  shifts: IShiftDetail[];
+}
+
+// Main Shift document interface
 interface IShift extends Document {
   cafe_name: string;
-  matricule: string;
-  shift: IShiftDetail[];
+  matricules: IMatriculeShift[];
 }
+
 
 // Schema for a single shift detail
 const ShiftDetailSchema: Schema = new Schema({
   date: { type: Date, required: true },
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
+  confirmed: { type: Boolean, default: false },
+});
+
+// Schema for matricule and its respective shift details
+const MatriculeShiftSchema: Schema = new Schema({
+  matricule: { type: String, required: true },
+  shifts: { type: [ShiftDetailSchema], required: true },
 });
 
 // Main Shift schema
 const ShiftSchema: Schema = new Schema({
-  cafe_name: { type: String, required: true },
-  matricule: { type: String, required: true },
-  shift: { type: [ShiftDetailSchema], required: true },
+  cafe_name: { type: String, required: true }, 
+  matricules: { type: [MatriculeShiftSchema], required: true }, // Change to Matricule Shift see with the prof
 });
+
+
 
 // Creating the models
 const ShiftDetailModel = model<IShiftDetail>("ShiftDetail", ShiftDetailSchema);
-const ShiftModel = model<IShift>("Shift", ShiftSchema, "shifts"); // for selecting the collection
+const ShiftModel = model<IShift>("Shift", ShiftSchema, "shifts");
 
-export { ShiftModel, IShift, ShiftDetailModel, IShiftDetail };
+export { ShiftModel, IShift, IShiftDetail };
+
+
+//export { ShiftModel, IShift, ShiftDetailModel, IShiftDetail };
+
+/**
+ * Example ajouter a la db
+{
+  "cafe_name": "Tore et Fraction",
+  "matricules": [
+    {
+      "matricule": "12345678",
+      "shifts": [
+        {
+          "date": "2023-10-01T00:00:00Z",
+          "startTime": "09:00",
+          "endTime": "17:00",
+          "confirmed": false
+        }
+      ]
+    },
+    {
+      "matricule": "87654321",
+      "shifts": [
+        {
+          "date": "2023-10-02T00:00:00Z",
+          "startTime": "10:00",
+          "endTime": "18:00",
+          "confirmed": false
+        }
+      ]
+    }
+  ]
+}
+ */

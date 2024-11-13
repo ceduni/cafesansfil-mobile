@@ -1,3 +1,4 @@
+import 'package:app/modeles/Cafe.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app/provider/auth_provider.dart';
@@ -25,9 +26,17 @@ class _PostLoginRedirectPageState extends State<PostLoginRedirectPage> {
     String? username = await authProvider.getUsername();
     authProvider.setTheUserName(username);
     print(username);
-    var cafeRoles = await cafeProvider.getRolesByUsername(username!);
-    print(cafeRoles);
+
+    List<CafeRoleInfo> cafeRoles;
     // Based on roles, redirect to the appropriate page
+    print(authProvider.userRole);
+    if (authProvider.userRole == 'Admin') {
+      cafeRoles = await cafeProvider.getAdminCafe(username!);
+      print(cafeRoles);
+    } else {
+      cafeRoles = await cafeProvider.getVolunteerCafe(username!);
+    }
+    print(cafeRoles);
 
     if (cafeRoles.isNotEmpty) {
       // Redirect to cafe selection page if roles exist, regardless of whether it's an admin
@@ -35,9 +44,13 @@ class _PostLoginRedirectPageState extends State<PostLoginRedirectPage> {
     } else {
       // Optional: Maybe handle a case where the user has no roles
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No roles found for this user.')),
+        const SnackBar(
+            content:
+                Text('No roles found for this user. Redirecting to login...')),
       );
       // You could choose to navigate somewhere else or show an error page
+      await Future.delayed(const Duration(seconds: 30));
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 

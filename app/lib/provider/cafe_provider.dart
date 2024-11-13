@@ -42,9 +42,10 @@ class CafeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<CafeRoleInfo>> getRolesByUsername(String username) async {
+  Future<List<CafeRoleInfo>> getVolunteerCafe(String username) async {
     // Fetch all cafes first
     _allCafes = await CafeService().getAllCafeList();
+    _cafesListRoles.clear();
 
     for (var cafe in _allCafes) {
       for (var staff in cafe.staff) {
@@ -52,6 +53,26 @@ class CafeProvider with ChangeNotifier {
           _cafesListRoles.add(CafeRoleInfo(
               cafeName: cafe.name, cafeSlug: cafe.slug, role: staff.role));
         }
+      }
+    }
+    return _cafesListRoles;
+  }
+
+  Future<List<CafeRoleInfo>> getAdminCafe(String username) async {
+    // Fetch all cafes first
+    _allCafes = await CafeService().getAllCafeList();
+    _cafesListRoles.clear();
+
+    for (var cafe in _allCafes) {
+      for (var staff in cafe.staff) {
+        if (staff.username == username && staff.role == "Admin") {
+          _cafesListRoles.add(CafeRoleInfo(
+              cafeName: cafe.name, cafeSlug: cafe.slug, role: staff.role));
+          break;
+        }
+      }
+      if (_cafesListRoles.isNotEmpty) {
+        break;
       }
     }
     return _cafesListRoles;

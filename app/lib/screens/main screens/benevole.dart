@@ -1,5 +1,6 @@
 import 'package:app/config.dart';
 import 'package:app/modeles/Cafe.dart';
+import 'package:app/provider/auth_provider.dart';
 import 'package:app/services/VolunteerService.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:app/provider/cafe_provider.dart';
@@ -37,6 +38,7 @@ class _BenevoleState extends State<Benevole> {
   Future<void> fetch() async {
     Cafe? selectedCafe =
         Provider.of<CafeProvider>(context, listen: false).selectedCafe;
+    //print(selectedCafe?.name);
     await Provider.of<VolunteerProvider>(context, listen: false)
         .fetchVolunteer();
     /*if (selectedCafe != null) {
@@ -48,7 +50,8 @@ class _BenevoleState extends State<Benevole> {
 
   @override
   Widget build(BuildContext context) {
-    final userRole = "admin"; // Replace with your actual user role logic
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    String? userRole = authProvider.userRole;
     return Scaffold(
       drawer: const Sidebar(),
       appBar: AppBar(
@@ -124,7 +127,7 @@ class _BenevoleState extends State<Benevole> {
       floatingActionButton: Stack(
         children: [
           //(Provider.of<AuthProvider>(context).userRole == 'admin')
-          if (userRole == 'admin')
+          if (userRole?.toLowerCase() == 'admin')
             Positioned(
               bottom: 16,
               right: 70, // Offset to avoid overlap
@@ -141,7 +144,7 @@ class _BenevoleState extends State<Benevole> {
               ),
             ),
           // Second FloatingActionButton for broadcasting
-          if (userRole == 'admin')
+          if (userRole?.toLowerCase() == 'admin')
             Positioned(
               bottom: 16,
               right: 10, // Positioned to the right of the first button

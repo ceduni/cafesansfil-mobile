@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/config.dart';
 import 'package:app/modeles/Cafe.dart';
-import 'package:uuid/uuid.dart';
 
 class CafeService {
   /*

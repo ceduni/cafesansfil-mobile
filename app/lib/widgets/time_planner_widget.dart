@@ -6,7 +6,16 @@ import 'package:provider/provider.dart';
 import 'package:time_planner/time_planner.dart';
 
 class TimePlannerWidget extends StatefulWidget {
-  TimePlannerWidget({super.key});
+  final Map<DateTime, List<ShiftDetail>> events;
+  final DateTime selectedDay;
+  final Function(ShiftDetail) onShiftAdded;
+
+  TimePlannerWidget({
+    super.key,
+    required this.events,
+    required this.selectedDay,
+    required this.onShiftAdded,
+  });
 
   @override
   State<TimePlannerWidget> createState() => _TimePlannerWidgetState();
