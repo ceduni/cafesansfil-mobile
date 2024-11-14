@@ -16,19 +16,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  int _selectedRole = 1; // 0 = Volunteer, 1 = Neutral, 2 = Admin
+  int _selectedRole = 0; // 0 = Volunteer, 1 = Admin
 
   void _login() async {
     if (_emailController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
       // Check if the selected role is either Admin (2) or Volunteer (0)
-      if (_selectedRole == 1) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Please select either Volunteer or Admin.')),
-        );
-        return;
-      }
 
       final String email = _emailController.text.trim();
       final String password = _passwordController.text.trim();
@@ -102,30 +95,6 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 20),
 
-            // Role Selector (ToggleButtons)
-            ToggleButtons(
-              onPressed: _selectRole,
-              borderRadius: BorderRadius.circular(50.0),
-              fillColor: Color.fromARGB(255, 138, 199, 249),
-              selectedColor: Colors.white,
-              isSelected: List.generate(3, (index) => _selectedRole == index),
-              children: const <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('Volunteer'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('Neutral'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('Admin'),
-                ),
-              ],
-            ),
-
-            /* // other UI
             ToggleSwitch(
               minWidth: 90.0,
               cornerRadius: 20.0,
@@ -136,18 +105,18 @@ class _LoginPageState extends State<LoginPage> {
               activeFgColor: Colors.white,
               inactiveBgColor: Colors.white,
               inactiveFgColor: Colors.black,
-              initialLabelIndex: 1,
+              initialLabelIndex: _selectedRole,
               totalSwitches: 2,
               labels: ['Volunteer', 'Admin'],
               radiusStyle: true,
               onToggle: (index) {
-                /*
                 setState(() {
-                  _selectedRole = index; // Set selected account type
-                });*/
+                  _selectedRole = index!; // Set selected account type
+                });
+                //_selectRole(index!);
                 print('switched to: $index');
               },
-            ),*/
+            ),
 
             const SizedBox(height: 35),
 

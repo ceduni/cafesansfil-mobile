@@ -55,30 +55,21 @@ export { ShiftModel, IShift, IShiftDetail };
 /**
  * Example ajouter a la db
 {
+  "cafe_id": 56372318
   "cafe_name": "Tore et Fraction",
-  "matricules": [
+  "shifts": [
     {
-      "matricule": "12345678",
-      "shifts": [
-        {
-          "date": "2023-10-01T00:00:00Z",
-          "startTime": "09:00",
-          "endTime": "17:00",
-          "confirmed": false
-        }
-      ]
-    },
-    {
-      "matricule": "87654321",
-      "shifts": [
-        {
-          "date": "2023-10-02T00:00:00Z",
-          "startTime": "10:00",
-          "endTime": "18:00",
-          "confirmed": false
-        }
-      ]
-    }
+      "date": "2023-10-01T00:00:00Z",
+      "startTime": "09:00",
+      "endTime": "17:00",
+      "min": 3,
+      closed
+      "staff": [
+      {
+        matricule: "12345678",
+        confirmed: true
+      }
+  ],
   ]
 }
  */
