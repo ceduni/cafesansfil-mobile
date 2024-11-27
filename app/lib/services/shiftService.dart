@@ -1,157 +1,78 @@
 import 'dart:convert';
 import 'package:app/config.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/modeles/Shift.dart';
-import 'package:time_planner/time_planner.dart';
 
 class ShiftService {
-  final String baseUrl = "${Config.baseUrl}/shifts";
+  final String baseUrl = '${Config.baseUrl}';
 
-  ShiftService({dynamic});
+  Future<List<Shift>> getAllShifts() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/shifts/all'));
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = jsonDecode(response.body)['shifts'];
+        return jsonResponse.map((shift) => Shift.fromJson(shift)).toList();
+      } else {
+        throw Exception('Failed to load shifts');
+      }
+    } catch (e) {
+      throw Exception('Error fetching shifts: $e');
+    }
+  }
 
-  Future<List<Shift>> fetchShifts() async {
-    print("in shift service");
-    var response = await http.get(Uri.parse(baseUrl));
+  Future<Shift?> addStaff(
+      String cafeName, String day, String hourName, String matricule) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/shifts/$day/addStaff'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'cafeName': cafeName,
+        'hourName': hourName,
+        'matricule': matricule,
+      }),
+    );
 
     if (response.statusCode == 200) {
-      var body = json.decode(response.body);
-
-      if (body["Shifts"] != null) {
-        print("in json sales tab");
-        List<dynamic> shiftsJson = body['Shifts'];
-
-        List<Shift> shifts =
-            shiftsJson.map((item) => Shift.fromJson(item)).toList();
-
-        return shifts;
-      } else {
-        throw Exception('Shift data is not available');
-      }
+      return Shift.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to load sales from $baseUrl');
+      throw Exception('Failed to add staff');
     }
   }
 
-  List<Shift> getShiftByCafe(List<Shift> shifts, String cafeName) {
-    List<Shift> cafeShifts = [];
-    for (var shift in shifts) {
-      if (shift.cafeName == cafeName) {
-        cafeShifts.add(shift);
-      }
-    }
-    return cafeShifts;
-  }
-
-  DateTime truncateTime(DateTime date) {
-    return DateTime(date.year, date.month, date.day);
-  }
-
-  List<DateTime> getFirstAndLastDayOfWeek(DateTime aDay) {
-    DateTime firstDayOfWeek =
-        truncateTime(aDay.subtract(Duration(days: aDay.weekday - 1)));
-    DateTime lastDayOfWeek =
-        truncateTime(firstDayOfWeek.add(Duration(days: 6)));
-    return [firstDayOfWeek, lastDayOfWeek];
-  }
-
-  int getDuration(ShiftDetail shiftDay) {
-    int duration = 0;
-    List<String> startTime = shiftDay.startTime.split(':');
-    List<String> endTime = shiftDay.endTime.split(':');
-    duration = int.parse(endTime[0]) - int.parse(startTime[0]);
-    return duration;
-  }
-
-  List<TimePlannerTask> shiftToTimePlannerTask(
-      List<ShiftDetail> shift, String text) {
-    List<TimePlannerTask> AllShiftPlan = [];
-
-    for (var shift in shift) {
-      int duration = getDuration(shift);
-      List<String> startTime = shift.startTime.split(':');
-
-      TimePlannerTask task = TimePlannerTask(
-        color: Colors.blueAccent,
-        dateTime: TimePlannerDateTime(
-          day: shift.date.weekday,
-          hour: int.parse(startTime[0]),
-          minutes: int.parse(startTime[1]),
-        ),
-        minutesDuration: duration * 60,
-        child: Text(text),
-      );
-      AllShiftPlan.add(task);
-    }
-    return AllShiftPlan;
-  }
-
-  List<TimePlannerTask> shiftsPlanToDisplay(
-      List<Shift> shifts, String cafeName, DateTime dayOfWeek) {
-    List<TimePlannerTask> AllShiftPlan = [];
-    List<Shift> cafeShifts = getShiftByCafe(shifts, cafeName);
-    List<DateTime> firstAndLastDayOfWeek = getFirstAndLastDayOfWeek(dayOfWeek);
-    DateTime firstDayOfWeek = firstAndLastDayOfWeek[0];
-    DateTime lastDayOfWeek = firstAndLastDayOfWeek[1];
-
-    List<ShiftDetail> shiftToDisplay = [];
-    List<String> matriculeForShift = [];
-
-    for (var shifts in cafeShifts) {
-      for (ShiftDetail shiftDetail in shifts.shifts) {
-        if (shifts.matricule == "20095336") {
-          DateTime truncatedShiftDate = truncateTime(shiftDetail.date);
-          if (truncatedShiftDate.isAfter(firstDayOfWeek) &&
-              truncatedShiftDate.isBefore(lastDayOfWeek)) {
-            shiftToDisplay.add(shiftDetail);
-            matriculeForShift.add(shifts.matricule);
-          }
-        }
-      }
-    }
-
-    for (int i = 0; i < shiftToDisplay.length; i++) {
-      AllShiftPlan.addAll(
-          shiftToTimePlannerTask(shiftToDisplay, matriculeForShift[i]));
-    }
-
-    print(AllShiftPlan);
-
-    return AllShiftPlan;
-  }
-
-  Future<void> createShift(Shift newShift) async {
-    final response = await http.post(
-      Uri.parse(baseUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(newShift.toJson()),
-    );
-    if (response.statusCode != 201) {
-      throw Exception('Failed to create shift');
-    }
-  }
-
-  Future<void> updateShift(String id, Shift updatedShift) async {
+  Future<Shift?> confirmStaff(
+      String cafeName, String day, String hourName, String matricule) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/$id'),
+      Uri.parse('$baseUrl/shifts/$day/$hourName/confirmStaff'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode(updatedShift.toJson()),
+      body: jsonEncode({
+        'cafeName': cafeName,
+        'matricule': matricule,
+      }),
     );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to update shift');
+
+    if (response.statusCode == 200) {
+      return Shift.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to confirm staff');
     }
   }
 
-  Future<void> addShiftDetail(
-      String matricule, ShiftDetail newShiftDetail) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/shifts/$matricule/details'),
+  Future<Shift?> removeStaff(
+      String cafeName, String day, String hourName, String matricule) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/shifts/$day/removeStaff'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode(newShiftDetail.toJson()),
+      body: jsonEncode({
+        'cafeName': cafeName,
+        'hourName': hourName,
+        'matricule': matricule,
+      }),
     );
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to add shift detail');
+    if (response.statusCode == 200) {
+      return Shift.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to remove staff');
     }
   }
 }

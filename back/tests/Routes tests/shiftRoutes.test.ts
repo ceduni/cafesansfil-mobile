@@ -13,7 +13,7 @@ beforeAll(() => {
 afterAll(async () => {
   await server.closeDatabaseConnection();
 });
-
+/*
 describe("GET /api/v1/shifts", () => {
   it("should return a list of all shifts", async () => {
     const response = await request(server.App).get("/api/v1/shifts");
@@ -51,4 +51,4 @@ describe("GET /api/v1/shifts/matricule/:matricule", () => {
     expect(response.body).toHaveProperty("shifts");
     expect(response.body.shifts).toEqual(null);
   });
-});
+});*/

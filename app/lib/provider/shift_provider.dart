@@ -1,80 +1,60 @@
-import 'package:app/config.dart';
 import 'package:app/modeles/Shift.dart';
 import 'package:app/services/shiftService.dart';
 import 'package:flutter/material.dart';
-import 'package:time_planner/time_planner.dart';
 
 class ShiftProvider with ChangeNotifier {
-  List<Shift> _shifts = [];
-  String cafeName = Config.cafeName;
-  List<TimePlannerTask> shiftsPlanToDisplay = [];
-  bool _isLoading = false;
-  String? _errorMessage;
+  final ShiftService _shiftService = ShiftService();
+  List<Shift> shifts = [];
 
-  List<Shift> get shifts => _shifts;
-  get shiftsToDisplay => shiftsPlanToDisplay;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  bool get hasError => _errorMessage != null && _errorMessage!.isNotEmpty;
-
-  ShiftProvider() {
-    fetchShifts();
-  }
-
-  Future<void> fetchShifts() async {
-    _isLoading = true;
-    try {
-      _shifts = await ShiftService().fetchShifts();
-      shiftsPlanToDisplay = ShiftService()
-          .shiftsPlanToDisplay(_shifts, cafeName, DateTime(2023, 3, 23));
-      _isLoading = false;
-    } catch (e) {
-      _errorMessage = e.toString();
-      _isLoading = false;
-    }
+  Future<void> fetchAllShifts() async {
+    shifts = await _shiftService.getAllShifts();
     notifyListeners();
   }
 
-  Future<void> createShift(Shift newShift) async {
-    _isLoading = true;
+  Future<void> addStaff(String cafeName, String dayName, String hourName,
+      String matricule) async {
     try {
-      await ShiftService().createShift(newShift);
-      await fetchShifts(); // Fetch shifts again to update the display
+      final updatedShift =
+          await _shiftService.addStaff(cafeName, dayName, hourName, matricule);
+      if (updatedShift != null) {
+        // Optionally, update the local shift list for quicker feedback
+        await fetchAllShifts();
+        notifyListeners(); // Notify listeners of the new shift data
+      }
     } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      // Handle error
+      print("Error while adding staff: $e");
     }
   }
 
-  Future<void> updateShift(String id, Shift updatedShift) async {
-    _isLoading = true;
+  Future<void> confirmStaff(String cafeName, String dayName, String hourName,
+      String matricule) async {
     try {
-      await ShiftService().updateShift(id, updatedShift);
-      await fetchShifts(); // Fetch shifts again to update the display
+      final updatedShift = await _shiftService.confirmStaff(
+          cafeName, dayName, hourName, matricule);
+      if (updatedShift != null) {
+        await fetchAllShifts();
+        notifyListeners();
+      }
     } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      // Handle error
+      print("Error while confirming staff: $e");
     }
   }
 
-  Future<void> addShiftDetail(
-      String matricule, ShiftDetail newShiftDetail) async {
-    _isLoading = true;
-    notifyListeners(); // Notify listeners to update UI
+  Future<void> removeStaff(String cafeName, String dayName, String hourName,
+      String matricule) async {
     try {
-      // Call the service to add a shift detail using matricule
-      await ShiftService().addShiftDetail(matricule, newShiftDetail);
-      await fetchShifts(); // Fetch shifts again to update the display
+      final updatedShift = await _shiftService.removeStaff(
+          cafeName, dayName, hourName, matricule);
+      if (updatedShift != null) {
+        // Optionally, update the local shift list for quicker feedback
+        await fetchAllShifts();
+        notifyListeners(); // Notify listeners of the new shift data
+      }
     } catch (e) {
-      _errorMessage = e.toString();
-      notifyListeners(); // Notify listeners about the error
-    } finally {
-      _isLoading = false;
-      notifyListeners(); // Notify listeners to update the loading state
+      // Handle error
+      print("Error while removing staff: $e");
     }
   }
 }

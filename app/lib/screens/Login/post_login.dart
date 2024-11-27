@@ -29,9 +29,11 @@ class _PostLoginRedirectPageState extends State<PostLoginRedirectPage> {
 
     List<CafeRoleInfo> cafeRoles;
     // Based on roles, redirect to the appropriate page
-    print(authProvider.userRole);
     if (authProvider.userRole == 'Admin') {
+      print(authProvider.userRole);
       cafeRoles = await cafeProvider.getAdminCafe(username!);
+      CafeRoleInfo uniqueRoleInfo = cafeRoles.first;
+      cafeProvider.setSelectedCafe(uniqueRoleInfo.cafeId);
       print(cafeRoles);
     } else {
       cafeRoles = await cafeProvider.getVolunteerCafe(username!);
@@ -40,7 +42,11 @@ class _PostLoginRedirectPageState extends State<PostLoginRedirectPage> {
 
     if (cafeRoles.isNotEmpty) {
       // Redirect to cafe selection page if roles exist, regardless of whether it's an admin
-      Navigator.pushReplacementNamed(context, '/select_cafe');
+      if (authProvider.userRole == 'Admin') {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        Navigator.pushReplacementNamed(context, '/select_cafe');
+      }
     } else {
       // Optional: Maybe handle a case where the user has no roles
       ScaffoldMessenger.of(context).showSnackBar(
@@ -49,7 +55,7 @@ class _PostLoginRedirectPageState extends State<PostLoginRedirectPage> {
                 Text('No roles found for this user. Redirecting to login...')),
       );
       // You could choose to navigate somewhere else or show an error page
-      await Future.delayed(const Duration(seconds: 30));
+      await Future.delayed(const Duration(seconds: 10));
       Navigator.pushReplacementNamed(context, '/login');
     }
   }

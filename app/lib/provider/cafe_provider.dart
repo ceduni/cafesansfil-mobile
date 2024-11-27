@@ -51,7 +51,7 @@ class CafeProvider with ChangeNotifier {
       for (var staff in cafe.staff) {
         if (staff.username == username) {
           _cafesListRoles.add(CafeRoleInfo(
-              cafeName: cafe.name, cafeSlug: cafe.slug, role: staff.role));
+              cafeName: cafe.name, cafeId: cafe.cafeId, role: staff.role));
         }
       }
     }
@@ -67,7 +67,7 @@ class CafeProvider with ChangeNotifier {
       for (var staff in cafe.staff) {
         if (staff.username == username && staff.role == "Admin") {
           _cafesListRoles.add(CafeRoleInfo(
-              cafeName: cafe.name, cafeSlug: cafe.slug, role: staff.role));
+              cafeName: cafe.name, cafeId: cafe.cafeId, role: staff.role));
           break;
         }
       }

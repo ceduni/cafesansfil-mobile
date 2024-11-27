@@ -1,113 +1,98 @@
-import { IShift, IShiftDetail, ShiftModel } from "../models/DatabaseModels/shiftModel";
+import { IShift, ShiftModel, IStaff } from "../models/DatabaseModels/shiftModel";
+
+// Define a type for the days of the week that are valid keys
+type DayOfTheWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
 
 export class ShiftService {
   public constructor() {}
 
-  public async getShifts(): Promise<IShift[]> {
+  // Retrieve all shifts
+  public async getAllShifts(): Promise<IShift[]> {
     try {
-      const result = await ShiftModel.find().exec();
-      return result;
+      return await ShiftModel.find().exec();
     } catch (err) {
-      console.error("Error fetching shift data:", err);
+      console.error("Error fetching all shifts:", err);
       return [];
     }
   }
 
-  public async getShiftsByMatricule(matricule: string): Promise<IShift | null> {
+  // Add staff to a specific hour on a specific day
+  public async addStaffToHour(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string): Promise<IShift | null> {
     try {
-      const result = await ShiftModel.findOne({ 'matricules.matricule': matricule }).exec();
-      return result;
-    } catch (err) {
-      console.error("Error fetching shift data:", err);
-      return null;
-    }
-  }
-
-  public async createShift(cafeName: string): Promise<IShift | null> {
-    try {
-      const newShift = new ShiftModel({ cafeName, matricules: [] });
-      return await newShift.save();
-    } catch (err) {
-      console.error("Error creating new shift:", err);
-      return null;
-    }
-  }
-
-  public async addShiftDetail(cafeName: string, matricule: string, shiftDetail: IShiftDetail): Promise<IShift | null> {
-    try {
-      const result = await ShiftModel.findOneAndUpdate(
-        { cafeName, 'matricules.matricule': matricule },
-        { $push: { 'matricules.$.shifts': shiftDetail } },
-        { new: true }
-      ).exec();
-      return result;
-    } catch (err) {
-      console.error("Error adding shift detail:", err);
-      return null;
-    }
-  }
-
-  public async updateShift(cafeName: string, matricule: string, date: Date, updatedShiftDetail: IShiftDetail): Promise<IShift | null> {
-    try {
-      const result = await ShiftModel.findOneAndUpdate(
-        { cafeName, 'matricules.matricule': matricule, 'matricules.shifts.date': date },
-        { $set: { 'matricules.$.shifts.$[elem]': updatedShiftDetail } },
-        { new: true, arrayFilters: [{ 'elem.date': date }] }
-      ).exec();
-      return result;
-    } catch (err) {
-      console.error("Error updating shift detail:", err);
-      return null;
-    }
-  }
-
-  public async removeShiftDetail(cafeName: string, matricule: string, date: Date): Promise<IShift | null> {
-    try {
-      const result = await ShiftModel.findOneAndUpdate(
-        { cafeName, 'matricules.matricule': matricule },
-        { $pull: { 'matricules.$.shifts': { date: date } } },
-        { new: true }
-      ).exec();
-      return result;
-    } catch (err) {
-      console.error("Error removing shift detail:", err);
-      return null;
-    }
-  }
-
-  public async isShiftDetailConfirmed(cafeName: string, matricule: string, date: Date): Promise<boolean | null> {
-    try {
-      const result = await ShiftModel.findOne(
-        { cafeName, 'matricules.matricule': matricule, 'matricules.shifts.date': date },
-        { 'matricules.$.shifts.$': 1 } 
-      ).exec();
-
-      if (result && result.matricules.length > 0) {
-        const shift = result.matricules[0].shifts.find((s: IShiftDetail) => s.date === date);
-        return shift ? shift.confirmed : null;
+      const shift = await ShiftModel.findOne({ cafe_name: cafeName });
+      if (shift) {
+        const targetHour = shift.shifts[day]?.hours.find(hr => hr.hourName === hourName);
+        if (targetHour) {
+          targetHour.staff.push({ matricule, set: false }); // Add new staff
+          await shift.save();
+          return shift;
+        }
       }
-
-      return null; 
+      return null;
     } catch (err) {
-      console.error("Error checking if shift detail is confirmed:", err);
+      console.error("Error adding staff to hour:", err);
       return null;
     }
   }
 
-  // Method to update the confirmed status of a shift detail
-  public async updateShiftConfirmation(cafeName: string, matricule: string, date: Date, confirmed: boolean): Promise<IShift | null> {
+  // Remove staff from a specific hour on a specific day
+  public async removeStaffFromHour(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string): Promise<IShift | null> {
     try {
-      const result = await ShiftModel.findOneAndUpdate(// they say findOneAndUpdate is faster
-        { cafeName, 'matricules.matricule': matricule, 'matricules.shifts.date': date },
-        { $set: { 'matricules.$.shifts.$[elem].confirmed': confirmed } }, 
-        { new: true, arrayFilters: [{ 'elem.date': date }] }
-      ).exec();
-      return result;
+      const shift = await ShiftModel.findOne({ cafe_name: cafeName });
+      if (shift) {
+        const targetHour = shift.shifts[day]?.hours.find(hr => hr.hourName === hourName);
+        if (targetHour) {
+          targetHour.staff = targetHour.staff.filter(staff => staff.matricule !== matricule); // Remove staff
+          await shift.save();
+          return shift;
+        }
+      }
+      return null;
     } catch (err) {
-      console.error("Error updating the confirmed status of shift detail:", err);
+      console.error("Error removing staff from hour:", err);
       return null;
     }
   }
+
+  // Confirm staff for a specific hour on a specific day
+  public async confirmStaff(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string): Promise<IShift | null> {
+    try {
+        const shift = await ShiftModel.findOne({ cafe_name: cafeName });
+        if (shift) {
+            const targetHour = shift.shifts[day]?.hours.find(hr => hr.hourName === hourName);
+            if (targetHour) {
+                const staff = targetHour.staff.find(staff => staff.matricule === matricule);
+                if (staff) {
+                    staff.set = true; // Set confirmed to true
+                    await shift.save();
+                    return shift;
+                }
+            }
+        }
+        return null;
+    } catch (err) {
+        console.error("Error confirming staff:", err);
+        return null;
+    }
+  }
+
+  // Get the staff list for a specific day at a specific hour
+  public async getStaffList(cafeName: string, day: DayOfTheWeek, hourName: string): Promise<IStaff[] | null> {
+    try {
+      const shift = await ShiftModel.findOne({ cafe_name: cafeName });
+      if (shift) {
+        const targetHour = shift.shifts[day]?.hours.find(hr => hr.hourName === hourName);
+        if (targetHour) {
+          return targetHour.staff; // Return the staff list for the specified hour
+        }
+      }
+      return null;
+    } catch (err) {
+      console.error("Error fetching staff list:", err);
+      return null;
+    }
+  }
+
 }
 
 export default ShiftService;

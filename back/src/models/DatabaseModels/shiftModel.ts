@@ -1,75 +1,77 @@
 import { Schema, Document, model } from "mongoose";
 
-// Interface for a single shift
-interface IShiftDetail extends Document {
-  date: Date;
-  startTime: string;
-  endTime: string;
-  confirmed: boolean;
+// Interface for a staff member
+interface IStaff {
+  matricule: string;
+  set: boolean; // false by default
 }
 
-// Interface for the main Matricule Shift document
-interface IMatriculeShift {
-  matricule: string;
-  shifts: IShiftDetail[];
+// Staff schema
+const StaffSchema: Schema = new Schema({
+  matricule: { type: String, required: true },
+  set: { type: Boolean, default: false } // false by default
+});
+
+// Interface for hourly shifts
+interface IHourlyShift {
+  hourName: string;
+  staffCountmin: number; // Renamed from staffCount to staffCountmin
+  staff: IStaff[];
 }
+
+// Hourly Shift schema
+const HourlyShiftSchema: Schema = new Schema({
+  hourName: { type: String, required: true },
+  staffCountmin: { type: Number, required: true }, // Count of minimum staff required
+  staff: { 
+    type: [StaffSchema], // Using the staff schema here
+    required: true 
+  }
+});
+
+// Interface for a day's shifts
+interface IDayShift {
+  hours: IHourlyShift[];
+}
+
+// Day Shift schema
+const DayShiftSchema: Schema = new Schema({
+  hours: { 
+    type: [HourlyShiftSchema], 
+    required: true 
+  }
+});
 
 // Main Shift document interface
 interface IShift extends Document {
+  cafe_id: string;
   cafe_name: string;
-  matricules: IMatriculeShift[];
+  shifts: {
+    monday: IDayShift;
+    tuesday: IDayShift;
+    wednesday: IDayShift;
+    thursday: IDayShift;
+    friday: IDayShift;
+    saturday?: IDayShift; // Optional
+    sunday?: IDayShift;   // Optional
+  };
 }
-
-
-// Schema for a single shift detail
-const ShiftDetailSchema: Schema = new Schema({
-  date: { type: Date, required: true },
-  startTime: { type: String, required: true },
-  endTime: { type: String, required: true },
-  confirmed: { type: Boolean, default: false },
-});
-
-// Schema for matricule and its respective shift details
-const MatriculeShiftSchema: Schema = new Schema({
-  matricule: { type: String, required: true },
-  shifts: { type: [ShiftDetailSchema], required: true },
-});
 
 // Main Shift schema
 const ShiftSchema: Schema = new Schema({
+  cafe_id: { type: String, required: true },
   cafe_name: { type: String, required: true }, 
-  matricules: { type: [MatriculeShiftSchema], required: true }, // Change to Matricule Shift see with the prof
+  shifts: {
+    monday: { type: DayShiftSchema, required: true },
+    tuesday: { type: DayShiftSchema, required: true },
+    wednesday: { type: DayShiftSchema, required: true },
+    thursday: { type: DayShiftSchema, required: true },
+    friday: { type: DayShiftSchema, required: true },
+    saturday: { type: DayShiftSchema, default: null }, // Optional
+    sunday: { type: DayShiftSchema, default: null },   // Optional
+  }
 });
 
+const ShiftModel = model<IShift>("Shift", ShiftSchema, "shift");
 
-
-// Creating the models
-const ShiftDetailModel = model<IShiftDetail>("ShiftDetail", ShiftDetailSchema);
-const ShiftModel = model<IShift>("Shift", ShiftSchema, "shifts");
-
-export { ShiftModel, IShift, IShiftDetail };
-
-
-//export { ShiftModel, IShift, ShiftDetailModel, IShiftDetail };
-
-/**
- * Example ajouter a la db
-{
-  "cafe_id": 56372318
-  "cafe_name": "Tore et Fraction",
-  "shifts": [
-    {
-      "date": "2023-10-01T00:00:00Z",
-      "startTime": "09:00",
-      "endTime": "17:00",
-      "min": 3,
-      closed
-      "staff": [
-      {
-        matricule: "12345678",
-        confirmed: true
-      }
-  ],
-  ]
-}
- */
+export { ShiftModel, IShift, IStaff };

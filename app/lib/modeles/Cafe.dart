@@ -416,9 +416,9 @@ class MenuItemOption {
 
 class CafeRoleInfo {
   final String cafeName;
-  final String cafeSlug;
+  final String cafeId;
   final String role;
 
   CafeRoleInfo(
-      {required this.cafeName, required this.cafeSlug, required this.role});
+      {required this.cafeName, required this.cafeId, required this.role});
 }

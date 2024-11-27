@@ -1,63 +1,93 @@
-class Shift {
-  final String? id;
-  final String cafeName;
+import 'dart:convert';
+
+class Staff {
+  final String id;
   final String matricule;
-  final List<ShiftDetail> shifts;
+  final bool set;
+
+  Staff({
+    required this.id,
+    required this.matricule,
+    required this.set,
+  });
+
+  factory Staff.fromJson(Map<String, dynamic> json) {
+    return Staff(
+      id: json['_id'],
+      matricule: json['matricule'],
+      set: json['set'],
+    );
+  }
+}
+
+class HourlyShift {
+  final String id;
+  final String hourName;
+  final int staffCountmin;
+  final List<Staff> staff;
+
+  HourlyShift({
+    required this.id,
+    required this.hourName,
+    required this.staffCountmin,
+    required this.staff,
+  });
+
+  factory HourlyShift.fromJson(Map<String, dynamic> json) {
+    var staffList =
+        (json['staff'] as List).map((staff) => Staff.fromJson(staff)).toList();
+    return HourlyShift(
+      id: json['_id'],
+      hourName: json['hourName'],
+      staffCountmin: json['staffCountmin'],
+      staff: staffList,
+    );
+  }
+}
+
+class DayShift {
+  final List<HourlyShift> hours;
+
+  DayShift({required this.hours});
+
+  factory DayShift.fromJson(Map<String, dynamic> json) {
+    var hoursList = (json['hours'] as List)
+        .map((hour) => HourlyShift.fromJson(hour))
+        .toList();
+    return DayShift(
+      hours: hoursList,
+    );
+  }
+}
+
+class Shift {
+  final String id;
+  final String cafeId;
+  final String cafeName;
+  final Map<String, DayShift?> shifts;
 
   Shift({
     required this.id,
+    required this.cafeId,
     required this.cafeName,
-    required this.matricule,
     required this.shifts,
   });
 
   factory Shift.fromJson(Map<String, dynamic> json) {
-    var shiftList = json['shift'] as List;
-    List<ShiftDetail> shiftDetailList =
-        shiftList.map((i) => ShiftDetail.fromJson(i)).toList();
+    var shiftsMap = <String, DayShift?>{};
+    json['shifts'].forEach((day, value) {
+      if (value != null) {
+        shiftsMap[day] = DayShift.fromJson(value);
+      } else {
+        shiftsMap[day] = null;
+      }
+    });
 
     return Shift(
       id: json['_id'],
+      cafeId: json['cafe_id'],
       cafeName: json['cafe_name'],
-      matricule: json['matricule'],
-      shifts: shiftDetailList,
+      shifts: shiftsMap,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      '_id': {'\$oid': id},
-      'cafe_name': cafeName,
-      'matricule': matricule,
-      'shift': shifts.map((shift) => shift.toJson()).toList(),
-    };
-  }
-}
-
-class ShiftDetail {
-  final DateTime date;
-  final String startTime;
-  final String endTime;
-
-  ShiftDetail({
-    required this.date,
-    required this.startTime,
-    required this.endTime,
-  });
-
-  factory ShiftDetail.fromJson(Map<String, dynamic> json) {
-    return ShiftDetail(
-      date: DateTime.parse(json['date']),
-      startTime: json['startTime'],
-      endTime: json['endTime'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'date': date.toIso8601String(),
-      'startTime': startTime,
-      'endTime': endTime,
-    };
   }
 }
