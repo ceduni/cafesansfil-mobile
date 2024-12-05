@@ -18,10 +18,10 @@ class VolunteerProvider with ChangeNotifier {
   bool get hasError =>
       (_errorMessage != null && _errorMessage!.isNotEmpty) || _hasError;
 
-  VolunteerProvider() {
+  /*VolunteerProvider() {
     //fetchVolunteer();
     fetchVolunteer();
-  }
+  }*/
   Future<void> fetchVolunteer() async {
     _isLoading = true;
     try {
@@ -41,6 +41,7 @@ class VolunteerProvider with ChangeNotifier {
     _isLoading = true;
     _hasError = false;
     notifyListeners();
+    //_volunteers.clear();
 
     try {
       // Fetch all volunteers (you might have this already implemented)

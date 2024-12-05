@@ -39,13 +39,13 @@ class _BenevoleState extends State<Benevole> {
     Cafe? selectedCafe =
         Provider.of<CafeProvider>(context, listen: false).selectedCafe;
     //print(selectedCafe?.name);
-    await Provider.of<VolunteerProvider>(context, listen: false)
-        .fetchVolunteer();
-    /*if (selectedCafe != null) {
+    //await Provider.of<VolunteerProvider>(context, listen: false).fetchVolunteer();
+    if (selectedCafe != null) {
       // Fetch volunteers using the staff from the selected cafe
+      print(selectedCafe.staff);
       await Provider.of<VolunteerProvider>(context, listen: false)
           .fetchVolunteersByStaff(selectedCafe.staff);
-    }*/
+    }
   }
 
   @override
@@ -77,25 +77,27 @@ class _BenevoleState extends State<Benevole> {
                   return Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: Slidable(
-                      endActionPane: ActionPane(
-                        motion: const DrawerMotion(),
-                        children: [
-                          SlidableAction(
-                            onPressed: (context) {
-                              // Pass the VolunteerProvider instance to the confirmation dialog
-                              final volunteerProvider =
-                                  Provider.of<VolunteerProvider>(context,
-                                      listen: false);
-                              _showDeleteConfirmationDialog(context,
-                                  volunteer.username, volunteerProvider);
-                            },
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            icon: Icons.delete,
-                            label: 'Delete',
-                          ),
-                        ],
-                      ),
+                      endActionPane: userRole?.toLowerCase() == 'admin'
+                          ? ActionPane(
+                              motion: const DrawerMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (context) {
+                                    // Pass the VolunteerProvider instance to the confirmation dialog
+                                    final volunteerProvider =
+                                        Provider.of<VolunteerProvider>(context,
+                                            listen: false);
+                                    _showDeleteConfirmationDialog(context,
+                                        volunteer.username, volunteerProvider);
+                                  },
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.delete,
+                                  label: 'Delete',
+                                ),
+                              ],
+                            )
+                          : null,
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundImage: NetworkImage(volunteer.photoUrl),
@@ -186,8 +188,11 @@ class _BenevoleState extends State<Benevole> {
             TextButton(
               onPressed: () async {
                 // Call the delete method from your VolunteerService
+                Cafe? selectedCafe =
+                    Provider.of<CafeProvider>(context, listen: false)
+                        .selectedCafe;
                 String response = await VolunteerService()
-                    .deleteVolunteer("tore-et-fraction", username);
+                    .deleteVolunteer(selectedCafe!.slug, username);
 
                 // Remove the volunteer from the list if deletion was successful
                 if (response == "Success: Volunteer deleted successfully.") {
