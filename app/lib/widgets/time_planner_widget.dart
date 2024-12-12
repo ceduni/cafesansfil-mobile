@@ -1,4 +1,6 @@
 import 'package:app/config.dart';
+import 'package:app/modeles/Cafe.dart';
+import 'package:app/modeles/Shift.dart';
 import 'package:app/provider/auth_provider.dart';
 import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/shift_provider.dart';
@@ -57,10 +59,16 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
 
   // Method to build daily view
   Widget _buildDailyView(ShiftProvider shiftProvider) {
+    String selectedCafeName =
+        (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!.name;
+    final filteredShifts = shiftProvider.shifts
+        .where((shift) => shift.cafeName == selectedCafeName)
+        .toList();
+
     return ListView.builder(
-      itemCount: shiftProvider.shifts.length,
+      itemCount: filteredShifts.length,
       itemBuilder: (context, index) {
-        final shift = shiftProvider.shifts[index];
+        final shift = filteredShifts[index];
 
         return Container(
           padding: const EdgeInsets.all(8.0),
@@ -83,7 +91,9 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    children: dayShift.hours.map((hourlyShift) {
+                    children: dayShift.hours
+                        .where((hourlyShift) => hourlyShift.staff.length > 0)
+                        .map((hourlyShift) {
                       return ExpansionTile(
                         title: Text(
                           '${hourlyShift.hourName} (${hourlyShift.staff.length})',
@@ -95,7 +105,7 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
                                 : Colors.black26,
                             margin: const EdgeInsets.symmetric(vertical: 4.0),
                             child: ListTile(
-                              title: Text(staffMember.matricule),
+                              title: Text(staffMember.name),
                               onTap: () {
                                 _showShiftActionDialog(
                                     context,
@@ -111,9 +121,6 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
                     }).toList(),
                   );
                 } else {
-                  /*return ListTile(
-                    title: Text('${entry.key.capitalize()} - Not a work day'),
-                  );*/
                   // Return an empty widget if it's not a work day
                   return SizedBox.shrink();
                 }
@@ -125,31 +132,58 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
     );
   }
 
-  // Method to build week view using TimePlanner
   Widget _buildWeekView(ShiftProvider shiftProvider) {
     final tasks = <TimePlannerTask>[];
+    String selectedCafeName =
+        (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!.name;
 
-    // Prepare tasks for the TimePlanner widget
-    for (var shift in shiftProvider.shifts) {
+    // Prepare tasks for the TimePlanner widget, filtering for "Tore et fraction"
+    final filteredShifts = shiftProvider.shifts
+        .where((shift) => shift.cafeName == selectedCafeName)
+        .toList();
+
+    for (var shift in filteredShifts) {
       for (var entry in shift.shifts.entries) {
         final dayShift = entry.value;
         if (dayShift != null) {
           for (var hourlyShift in dayShift.hours) {
-            tasks.add(
-              TimePlannerTask(
-                color: Config.specialBlue,
-                dateTime: TimePlannerDateTime(
-                  day: _getDayIndex(entry.key),
-                  hour: int.parse(hourlyShift.hourName.split(':')[0]),
-                  minutes: int.parse(hourlyShift.hourName.split(':')[1]),
+            if (hourlyShift.staff.length > 0) {
+              // Check if staff length is greater than 0
+              tasks.add(
+                TimePlannerTask(
+                  color: const Color.fromARGB(10, 33, 226, 243), // Task color
+                  dateTime: TimePlannerDateTime(
+                    day: _getDayIndex(entry.key),
+                    hour: int.parse(hourlyShift.hourName.split(':')[0]),
+                    minutes: int.parse(hourlyShift.hourName.split(':')[1]),
+                  ),
+                  minutesDuration: 60,
+                  onTap: () {
+                    // Navigate to the daily view with the selected day and hour
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DailyView(
+                          dayName: entry.key,
+                          hourName: hourlyShift.hourName,
+                          hourlyShifts:
+                              dayShift.hours, // Pass the list of hourly shifts
+                        ),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      const Spacer(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: _buildStaffCircles(hourlyShift.staff.length),
+                      ),
+                    ],
+                  ),
                 ),
-                minutesDuration: 60,
-                child: Text(
-                  hourlyShift.staff.map((s) => s.matricule).join('\n'),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            );
+              );
+            }
           }
         }
       }
@@ -169,12 +203,60 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
       ],
       tasks: tasks,
       style: TimePlannerStyle(
-        cellHeight: 150,
-        cellWidth: 150,
+        cellHeight: 80,
+        cellWidth: 80,
         dividerColor: Colors.red[900],
         showScrollBar: true,
       ),
     );
+  }
+
+  // Update the method to build staff circles
+  List<Widget> _buildStaffCircles(int staffCount) {
+    // Define colors for the circles
+    final colors = [
+      Colors.blue,
+      Colors.red[700],
+      Colors.green[900],
+    ];
+
+    // Limit the number of circles to four
+    final numCircles = staffCount > 4 ? 4 : staffCount;
+
+    List<Widget> circles = [];
+
+    for (int i = 0; i < numCircles; i++) {
+      if (i < 3) {
+        // Add only the first three colors
+        circles.add(
+          Container(
+            margin: const EdgeInsets.all(2.0),
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: colors[i], // Use the appropriate color based on the index
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+      } else if (i == 3 && staffCount > 3) {
+        // If there are more than three staff, add a plus icon
+        circles.add(
+          Container(
+            margin: const EdgeInsets.all(2.0),
+            width: 10,
+            height: 10,
+            child: Icon(
+              Icons.add,
+              size: 10, // Adjust the size of the icon
+              color: Colors.black, // Color of the plus icon
+            ),
+          ),
+        );
+      }
+    }
+
+    return circles;
   }
 
   // Helper function to map day names to index
@@ -200,7 +282,6 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
   }
 
   void _showAddStaffDialog(BuildContext context) {
-    final cafeNameController = TextEditingController();
     final dayNameController = TextEditingController();
     final hourNameController = TextEditingController();
 
@@ -228,6 +309,7 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
               onPressed: () {
                 final cafeProvider =
                     Provider.of<CafeProvider>(context, listen: false);
+                Cafe? selectedCafe = cafeProvider.selectedCafe;
                 final dayName = dayNameController.text;
                 final hourName = hourNameController.text;
                 final authProvider =
@@ -235,9 +317,11 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
                 print(authProvider.username);
 
                 Provider.of<ShiftProvider>(context, listen: false)
-                    .addStaff(cafeProvider.cafeName, dayName, hourName,
-                        authProvider.username!)
+                    .addStaff(selectedCafe!.name, dayName, hourName,
+                        authProvider.username!, authProvider.firstname!)
                     .then((_) {
+                  Provider.of<ShiftProvider>(context, listen: false)
+                      .fetchAllShifts();
                   Navigator.of(context).pop();
                 });
               },
@@ -283,6 +367,8 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
                   matricule,
                 )
                     .then((_) {
+                  Provider.of<ShiftProvider>(context, listen: false)
+                      .fetchAllShifts();
                   Navigator.of(context).pop();
                 });
               },
@@ -307,6 +393,142 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
                   matricule,
                 )
                     .then((_) {
+                  Provider.of<ShiftProvider>(context, listen: false)
+                      .fetchAllShifts();
+                  Navigator.of(context).pop();
+                });
+              },
+            ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class DailyView extends StatelessWidget {
+  final String dayName;
+  final String hourName;
+  final List<HourlyShift> hourlyShifts;
+
+  const DailyView({
+    Key? key,
+    required this.dayName,
+    required this.hourName,
+    required this.hourlyShifts,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Filter hourly shifts to find the specific hour
+    final filteredHourlyShifts = hourlyShifts
+        .where((hourlyShift) => hourlyShift.hourName == hourName)
+        .toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Horaire - $dayName at $hourName'),
+      ),
+      body: filteredHourlyShifts.isNotEmpty
+          ? ListView.builder(
+              itemCount: filteredHourlyShifts.length,
+              itemBuilder: (context, index) {
+                final hourlyShift = filteredHourlyShifts[index];
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: hourlyShift.staff.map((staffMember) {
+                    return Card(
+                      color:
+                          staffMember.set ? Colors.green[300] : Colors.black26,
+                      margin: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: ListTile(
+                        title: Text(staffMember.name),
+                        onTap: () {
+                          _showShiftActionDialog(context, dayName, hourName,
+                              staffMember.matricule);
+                        },
+                        trailing: IconButton(
+                          icon: const Icon(Icons.info),
+                          onPressed: () {
+                            // Todo
+                          },
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            )
+          : const Center(child: Text('No shifts available for this hour.')),
+    );
+  }
+
+  void _showShiftActionDialog(
+      BuildContext context, String dayName, String hourName, String matricule) {
+    final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Volunteer: $matricule'),
+          content: const Text('What would you like to do'),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Confirm Shift'),
+              onPressed: () {
+                shiftProvider
+                    .confirmStaff(
+                  shiftProvider.shifts[0].cafeName,
+                  dayName,
+                  hourName,
+                  matricule,
+                )
+                    .then((_) {
+                  Provider.of<ShiftProvider>(context, listen: false)
+                      .fetchAllShifts();
+                  Navigator.of(context).pop();
+                });
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[400],
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: const Text('Remove Shift'),
+              onPressed: () {
+                shiftProvider
+                    .removeStaff(
+                  shiftProvider.shifts[0].cafeName,
+                  dayName,
+                  hourName,
+                  matricule,
+                )
+                    .then((_) {
+                  Provider.of<ShiftProvider>(context, listen: false)
+                      .fetchAllShifts();
                   Navigator.of(context).pop();
                 });
               },

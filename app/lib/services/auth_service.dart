@@ -149,6 +149,14 @@ class AuthService {
     await storage.write(key: 'refresh_token', value: refreshToken);
   }
 
+  Future<String?> getFirstName() async {
+    return await storage.read(key: 'first_name');
+  }
+
+  Future<String?> getLastName() async {
+    return await storage.read(key: 'last_name');
+  }
+
   Future<String?> getToken() async {
     return await storage.read(key: 'token');
   }

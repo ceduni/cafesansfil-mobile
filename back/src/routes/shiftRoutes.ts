@@ -47,9 +47,9 @@ export class ShiftRoutes {
 
   public async addStaffToHour(req: Request, res: Response): Promise<void> {
     const { day } = req.params as { day: DayOfWeek };
-    const { cafeName, hourName, matricule } = req.body;
+    const { cafeName, hourName, matricule, name } = req.body; 
     try {
-      const updatedShift = await this.ShiftService.addStaffToHour(cafeName, day, hourName, matricule);
+      const updatedShift = await this.ShiftService.addStaffToHour(cafeName, day, hourName, matricule, name);
       if (updatedShift) {
         res.status(200).send({
           message: "Staff added successfully",

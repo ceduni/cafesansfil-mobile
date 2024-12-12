@@ -25,7 +25,7 @@ class _AddBenevoleState extends State<AddBenevole> {
     double screenHeight = MediaQuery.of(context).size.height;
     Cafe? selectedCafe =
         Provider.of<CafeProvider>(context, listen: false).selectedCafe;
-    String cafeSlug = "tore-et-fraction";
+    String cafeSlug = selectedCafe!.slug;
 
     return Scaffold(
       appBar: AppBar(
@@ -132,9 +132,9 @@ class _AddBenevoleState extends State<AddBenevole> {
                     _isLoading = true;
                   });
                   try {
-                    //String message = await VolunteerService().addVolunteer(cafeSlug, _controller.text, selectedOption);
                     String message = await VolunteerService().addVolunteer(
-                        "tore-et-fraction", _controller.text, selectedOption);
+                        cafeSlug, _controller.text, selectedOption);
+                    //String message = await VolunteerService().addVolunteer("tore-et-fraction", _controller.text, selectedOption);
                     // pop up message
                     print(message);
                     ScaffoldMessenger.of(context).showSnackBar(

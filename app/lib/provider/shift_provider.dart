@@ -12,17 +12,15 @@ class ShiftProvider with ChangeNotifier {
   }
 
   Future<void> addStaff(String cafeName, String dayName, String hourName,
-      String matricule) async {
+      String matricule, String name) async {
     try {
-      final updatedShift =
-          await _shiftService.addStaff(cafeName, dayName, hourName, matricule);
+      final updatedShift = await _shiftService.addStaff(
+          cafeName, dayName, hourName, matricule, name); // Pass name
       if (updatedShift != null) {
-        // Optionally, update the local shift list for quicker feedback
         await fetchAllShifts();
-        notifyListeners(); // Notify listeners of the new shift data
+        notifyListeners();
       }
     } catch (e) {
-      // Handle error
       print("Error while adding staff: $e");
     }
   }

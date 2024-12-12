@@ -42,9 +42,9 @@ class _BenevoleState extends State<Benevole> {
     //await Provider.of<VolunteerProvider>(context, listen: false).fetchVolunteer();
     if (selectedCafe != null) {
       // Fetch volunteers using the staff from the selected cafe
-      print(selectedCafe.staff);
+      print(selectedCafe.name);
       await Provider.of<VolunteerProvider>(context, listen: false)
-          .fetchVolunteersByStaff(selectedCafe.staff);
+          .fetchVolunteer(selectedCafe.name);
     }
   }
 

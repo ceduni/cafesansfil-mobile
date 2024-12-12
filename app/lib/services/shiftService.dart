@@ -20,8 +20,8 @@ class ShiftService {
     }
   }
 
-  Future<Shift?> addStaff(
-      String cafeName, String day, String hourName, String matricule) async {
+  Future<Shift?> addStaff(String cafeName, String day, String hourName,
+      String matricule, String name) async {
     final response = await http.post(
       Uri.parse('$baseUrl/shifts/$day/addStaff'),
       headers: {'Content-Type': 'application/json'},
@@ -29,6 +29,7 @@ class ShiftService {
         'cafeName': cafeName,
         'hourName': hourName,
         'matricule': matricule,
+        'name': name, // Include name in the request body
       }),
     );
 

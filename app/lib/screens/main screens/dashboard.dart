@@ -1,4 +1,5 @@
 import 'package:app/config.dart';
+import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/order_provider.dart';
 import 'package:app/provider/stock_provider.dart';
 import 'package:app/screens/side%20bar/side_bar.dart';
@@ -35,6 +36,10 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    String selectedCafeLogoUrl =
+        (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!
+            .imageUrl;
+    print(selectedCafeLogoUrl);
     return Scaffold(
         drawer: const Sidebar(),
         appBar: AppBar(

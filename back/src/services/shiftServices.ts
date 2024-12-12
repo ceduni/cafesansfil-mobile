@@ -17,13 +17,13 @@ export class ShiftService {
   }
 
   // Add staff to a specific hour on a specific day
-  public async addStaffToHour(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string): Promise<IShift | null> {
+  public async addStaffToHour(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string, name: string): Promise<IShift | null> {
     try {
       const shift = await ShiftModel.findOne({ cafe_name: cafeName });
       if (shift) {
         const targetHour = shift.shifts[day]?.hours.find(hr => hr.hourName === hourName);
         if (targetHour) {
-          targetHour.staff.push({ matricule, set: false }); // Add new staff
+          targetHour.staff.push({ matricule, set: false, name }); // Add new staff
           await shift.save();
           return shift;
         }

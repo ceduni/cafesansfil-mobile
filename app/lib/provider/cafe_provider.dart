@@ -1,10 +1,8 @@
-import 'package:app/config.dart';
 import 'package:app/modeles/Cafe.dart';
 import 'package:app/services/CafeService.dart';
 import 'package:flutter/material.dart';
 
 class CafeProvider with ChangeNotifier {
-  String cafeName = Config.cafeName;
   bool _isLoading = false;
   String? _errorMessage;
   var _cafe;
@@ -29,7 +27,7 @@ class CafeProvider with ChangeNotifier {
   Future<void> fetchCafe() async {
     _isLoading = true;
     try {
-      _cafe = await CafeService().fetchCafeByName(cafeName);
+      _cafe = _selectedCafe;
 
       _isLoading = false;
     } catch (e) {

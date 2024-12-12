@@ -4,11 +4,13 @@ class Staff {
   final String id;
   final String matricule;
   final bool set;
+  final String name;
 
   Staff({
     required this.id,
     required this.matricule,
     required this.set,
+    required this.name,
   });
 
   factory Staff.fromJson(Map<String, dynamic> json) {
@@ -16,6 +18,7 @@ class Staff {
       id: json['_id'],
       matricule: json['matricule'],
       set: json['set'],
+      name: json['name'],
     );
   }
 }

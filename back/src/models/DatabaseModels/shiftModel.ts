@@ -3,13 +3,15 @@ import { Schema, Document, model } from "mongoose";
 // Interface for a staff member
 interface IStaff {
   matricule: string;
-  set: boolean; // false by default
+  set: boolean; 
+  name: string;
 }
 
 // Staff schema
 const StaffSchema: Schema = new Schema({
   matricule: { type: String, required: true },
-  set: { type: Boolean, default: false } // false by default
+  set: { type: Boolean, default: false }, // false by default
+  name: { type: String, required: true }
 });
 
 // Interface for hourly shifts

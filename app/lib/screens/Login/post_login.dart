@@ -24,8 +24,12 @@ class _PostLoginRedirectPageState extends State<PostLoginRedirectPage> {
 
     // Fetch the username and user role
     String? username = await authProvider.getUsername();
-    authProvider.setTheUserName(username);
+    String? firstname = await authProvider.getFirstname();
+    String? lastname = await authProvider.getLastname();
+    authProvider.setTheUsername(username);
     print(username);
+    print(firstname);
+    print(lastname);
 
     List<CafeRoleInfo> cafeRoles;
     // Based on roles, redirect to the appropriate page
