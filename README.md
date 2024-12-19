@@ -98,5 +98,5 @@ Si vous êtes intéressé à participer au projet, veuillez prendre contact avec
 - Louis-Edouard LAFONTANT [@lelafontant](https://github.com/lelafontant)
 - Johann SOUROU [@JohannSR28](https://github.com/JohannSR28)
 - Larry Fotso Guiffo [@larry1473](https://github.com/larry1473)
-
+- Paul Konan [@Keepa10](https://github.com/Keepa10)
 
