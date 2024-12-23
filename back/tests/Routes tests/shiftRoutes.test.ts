@@ -38,10 +38,10 @@ describe("ShiftRoutes test", () => {
     });
   });
 
-  describe("DELETE /shifts/:day/removeStaff", () => {
+  describe("DELETE /api/v1/shifts/:day/removeStaff", () => {
     it("should remove staff from a specific hour", async () => {
       const response = await request(server.App)
-        .delete("/shifts/monday/removeStaff")
+        .delete("/api/v1/shifts/monday/removeStaff")
         .send({
           cafeName: "TestCafe",
           hourName: "10:00",
@@ -55,7 +55,7 @@ describe("ShiftRoutes test", () => {
   describe("PUT /shifts/:day/:hourName/confirmStaff", () => {
     it("should confirm staff for a specific hour", async () => {
       const response = await request(server.App)
-        .put("/shifts/monday/10:00/confirmStaff")
+        .put("/api/v1/shifts/monday/10:00/confirmStaff")
         .send({
           cafeName: "TestCafe",
           matricule: "123456",
@@ -65,10 +65,10 @@ describe("ShiftRoutes test", () => {
     });
   });
 
-  describe("GET /shifts/:cafeName/:day/:hourName/staff", () => {
+  describe("GET /api/v1/shifts/:cafeName/:day/:hourName/staff", () => {
     it("should return the staff list for a specific hour", async () => {
       const response = await request(server.App)
-        .get("/shifts/TestCafe/monday/10:00/staff");
+        .get("/api/v1/shifts/TestCafe/monday/10:00/staff");
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("staff");
       expect(response.body.staff).toBeInstanceOf(Array);

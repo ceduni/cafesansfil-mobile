@@ -36,10 +36,10 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    String selectedCafeLogoUrl =
+    /*String selectedCafeLogoUrl =
         (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!
             .imageUrl;
-    print(selectedCafeLogoUrl);
+    print(selectedCafeLogoUrl);*/
     return Scaffold(
         drawer: const Sidebar(),
         appBar: AppBar(

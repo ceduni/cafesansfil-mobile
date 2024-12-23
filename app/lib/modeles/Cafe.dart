@@ -242,6 +242,13 @@ class MenuItemOption {
       fee: double.parse(json['fee'].toString()),
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'value': value,
+      'fee': fee,
+    };
+  }
 }
 
 class CafeRoleInfo {

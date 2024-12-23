@@ -79,6 +79,7 @@ class _BenevoleState extends State<Benevole> {
                     child: Slidable(
                       endActionPane: userRole?.toLowerCase() == 'admin'
                           ? ActionPane(
+                              extentRatio: 0.25,
                               motion: const DrawerMotion(),
                               children: [
                                 SlidableAction(

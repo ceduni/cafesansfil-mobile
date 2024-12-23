@@ -7,6 +7,7 @@ import 'package:app/provider/shift_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_planner/time_planner.dart';
+import 'package:intl/intl.dart';
 
 class TimePlannerWidget extends StatefulWidget {
   const TimePlannerWidget({super.key});
@@ -17,6 +18,7 @@ class TimePlannerWidget extends StatefulWidget {
 
 class _TimePlannerWidgetState extends State<TimePlannerWidget> {
   bool isWeekView = false; // State variable to track the view type
+  DateTime selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -61,72 +63,224 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
   Widget _buildDailyView(ShiftProvider shiftProvider) {
     String selectedCafeName =
         (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!.name;
+
+    // Get the current day's name
+    String currentDayName = DateFormat('EEEE').format(selectedDate);
+
+    // Get the shifts for the selected cafe and day
     final filteredShifts = shiftProvider.shifts
         .where((shift) => shift.cafeName == selectedCafeName)
         .toList();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    String? userRole = authProvider.userRole;
+    String? username = authProvider.username;
 
-    return ListView.builder(
-      itemCount: filteredShifts.length,
-      itemBuilder: (context, index) {
-        final shift = filteredShifts[index];
+    // Create a list to hold hourly shifts for the current day
+    List<HourlyShift> dailyHourlyShifts = [];
 
-        return Container(
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Colors.grey.shade300),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    for (var shift in filteredShifts) {
+      // Check if the shift contains a day shift for the current day
+      if (shift.shifts.containsKey(currentDayName.toLowerCase())) {
+        var dayShift =
+            shift.shifts[currentDayName.toLowerCase()]; // Get the day shift
+        if (dayShift != null && dayShift.hours.isNotEmpty) {
+          dailyHourlyShifts.addAll(dayShift.hours);
+        }
+      }
+    }
+
+    // Filter out hourly shifts that have no staff members
+    dailyHourlyShifts = dailyHourlyShifts
+        .where((hourlyShift) => hourlyShift.staff.isNotEmpty)
+        .toList();
+
+    return Column(
+      children: [
+        // Header with navigation buttons
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ...shift.shifts.entries.map((entry) {
-                final dayShift = entry.value;
-                if (dayShift != null) {
-                  return ExpansionTile(
-                    title: Text(
-                      entry.key.capitalize(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    children: dayShift.hours
-                        .where((hourlyShift) => hourlyShift.staff.length > 0)
-                        .map((hourlyShift) {
-                      return ExpansionTile(
-                        title: Text(
-                          '${hourlyShift.hourName} (${hourlyShift.staff.length})',
-                        ),
-                        children: hourlyShift.staff.map((staffMember) {
-                          return Card(
-                            color: staffMember.set
-                                ? Colors.green[300]
-                                : Colors.black26,
-                            margin: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: ListTile(
-                              title: Text(staffMember.name),
-                              onTap: () {
-                                _showShiftActionDialog(
-                                    context,
-                                    shiftProvider,
-                                    entry.key,
-                                    hourlyShift.hourName,
-                                    staffMember.matricule);
-                              },
-                            ),
-                          );
-                        }).toList(),
-                      );
-                    }).toList(),
-                  );
-                } else {
-                  // Return an empty widget if it's not a work day
-                  return SizedBox.shrink();
-                }
-              }).toList(),
+              IconButton(
+                icon: const Icon(Icons.arrow_left),
+                onPressed: () {
+                  setState(() {
+                    selectedDate = selectedDate.subtract(Duration(days: 1));
+                  });
+                },
+              ),
+              Text(
+                currentDayName.capitalize(), // Display the current day
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_right),
+                onPressed: () {
+                  setState(() {
+                    selectedDate = selectedDate.add(Duration(days: 1));
+                  });
+                },
+              ),
             ],
           ),
+        ),
+        // Display shifts for the selected day
+        Expanded(
+          child: dailyHourlyShifts.isNotEmpty // Check if any shifts remain
+              ? ListView.builder(
+                  itemCount: dailyHourlyShifts.length,
+                  itemBuilder: (context, index) {
+                    final hourlyShift = dailyHourlyShifts[index];
+
+                    return ExpansionTile(
+                      title: Text(
+                        '${hourlyShift.hourName} (${hourlyShift.staff.length})',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      children: hourlyShift.staff.map((staffMember) {
+                        return Card(
+                          color: staffMember.set
+                              ? Colors.green[300]
+                              : Colors.grey[400],
+                          margin: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Column(
+                            children: [
+                              ExpansionTile(
+                                title: Text(staffMember.name),
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      // Only show the confirmation button if `set` is false
+                                      if ((!staffMember.set) &&
+                                          (userRole?.toLowerCase() == 'admin'))
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            iconColor: Colors.blue,
+                                            padding: EdgeInsets.all(12.0),
+                                            shape:
+                                                CircleBorder(), // Make the button circular
+                                          ),
+                                          child: Icon(Icons.check),
+                                          onPressed: () {
+                                            _showConfirmationDialog(
+                                                context,
+                                                'Confirm Shift',
+                                                'Are you sure you want to confirm this shift?',
+                                                () => _confirmShift(
+                                                    context,
+                                                    staffMember.matricule,
+                                                    currentDayName
+                                                        .toLowerCase(),
+                                                    hourlyShift.hourName));
+                                          },
+                                        ),
+                                      if ((userRole?.toLowerCase() ==
+                                              'admin') ||
+                                          ((username ==
+                                                  staffMember.matricule) &&
+                                              (staffMember.set == false)))
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            iconColor: Colors.red,
+                                            padding: EdgeInsets.all(12.0),
+                                            shape:
+                                                CircleBorder(), // Make the button circular
+                                          ),
+                                          child: Icon(Icons.delete_forever),
+                                          onPressed: () {
+                                            _showConfirmationDialog(
+                                              context,
+                                              'Remove Shift',
+                                              'Are you sure you want to remove this shift?',
+                                              () => _removeShift(
+                                                  context,
+                                                  staffMember.matricule,
+                                                  currentDayName.toLowerCase(),
+                                                  hourlyShift.hourName),
+                                            );
+                                          },
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                )
+              : const Center(child: Text('No shifts available for this day.')),
+        ),
+      ],
+    );
+  }
+
+  void _confirmShift(
+      BuildContext context, String matricule, String dayName, String hourName) {
+    String selectedCafeName =
+        (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!.name;
+    final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+    shiftProvider
+        .confirmStaff(
+      selectedCafeName,
+      dayName,
+      hourName,
+      matricule,
+    )
+        .then((_) {
+      Provider.of<ShiftProvider>(context, listen: false).fetchAllShifts();
+    });
+  }
+
+  void _removeShift(
+      BuildContext context, String matricule, String dayName, String hourName) {
+    String selectedCafeName =
+        (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!.name;
+    final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+    shiftProvider
+        .removeStaff(
+      selectedCafeName,
+      dayName,
+      hourName,
+      matricule,
+    )
+        .then((_) {
+      Provider.of<ShiftProvider>(context, listen: false).fetchAllShifts();
+    });
+  }
+
+  void _showConfirmationDialog(BuildContext context, String title,
+      String message, VoidCallback onConfirm) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: const Text('Confirm'),
+              onPressed: () {
+                onConfirm();
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
         );
       },
     );
@@ -137,7 +291,6 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
     String selectedCafeName =
         (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!.name;
 
-    // Prepare tasks for the TimePlanner widget, filtering for "Tore et fraction"
     final filteredShifts = shiftProvider.shifts
         .where((shift) => shift.cafeName == selectedCafeName)
         .toList();
@@ -147,7 +300,7 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
         final dayShift = entry.value;
         if (dayShift != null) {
           for (var hourlyShift in dayShift.hours) {
-            if (hourlyShift.staff.length > 0) {
+            if (hourlyShift.staff.isNotEmpty) {
               // Check if staff length is greater than 0
               tasks.add(
                 TimePlannerTask(
@@ -295,11 +448,13 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
             children: [
               TextField(
                 controller: dayNameController,
-                decoration: const InputDecoration(labelText: 'Day Name'),
+                decoration: const InputDecoration(
+                    labelText: 'Day Name (ex: Monday, Friday)'),
               ),
               TextField(
                 controller: hourNameController,
-                decoration: const InputDecoration(labelText: 'Hour Name'),
+                decoration: const InputDecoration(
+                    labelText: 'Hour Name (ex: 9:00, 10:00, 17:00)'),
               ),
             ],
           ),
@@ -319,79 +474,6 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
                 Provider.of<ShiftProvider>(context, listen: false)
                     .addStaff(selectedCafe!.name, dayName, hourName,
                         authProvider.username!, authProvider.firstname!)
-                    .then((_) {
-                  Provider.of<ShiftProvider>(context, listen: false)
-                      .fetchAllShifts();
-                  Navigator.of(context).pop();
-                });
-              },
-            ),
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showShiftActionDialog(BuildContext context, ShiftProvider shiftProvider,
-      String dayName, String hourName, String matricule) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Volunteer: ' + matricule),
-          content: const Text('What would you like to do'),
-          actions: <Widget>[
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Confirm Shift'),
-              onPressed: () {
-                shiftProvider
-                    .confirmStaff(
-                  shiftProvider.shifts[0].cafeName,
-                  dayName,
-                  hourName,
-                  matricule,
-                )
-                    .then((_) {
-                  Provider.of<ShiftProvider>(context, listen: false)
-                      .fetchAllShifts();
-                  Navigator.of(context).pop();
-                });
-              },
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[400],
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              child: const Text('Remove Shift'),
-              onPressed: () {
-                shiftProvider
-                    .removeStaff(
-                  shiftProvider.shifts[0].cafeName,
-                  dayName,
-                  hourName,
-                  matricule,
-                )
                     .then((_) {
                   Provider.of<ShiftProvider>(context, listen: false)
                       .fetchAllShifts();
@@ -430,10 +512,13 @@ class DailyView extends StatelessWidget {
     final filteredHourlyShifts = hourlyShifts
         .where((hourlyShift) => hourlyShift.hourName == hourName)
         .toList();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    String? userRole = authProvider.userRole;
+    String? username = authProvider.username;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Horaire - $dayName at $hourName'),
+        title: Text('$dayName - $hourName'),
       ),
       body: filteredHourlyShifts.isNotEmpty
           ? ListView.builder(
@@ -445,21 +530,63 @@ class DailyView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: hourlyShift.staff.map((staffMember) {
                     return Card(
-                      color:
-                          staffMember.set ? Colors.green[300] : Colors.black26,
+                      color: staffMember.set
+                          ? Colors.green[300]
+                          : Colors.grey[400],
                       margin: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: ListTile(
+                      child: ExpansionTile(
                         title: Text(staffMember.name),
-                        onTap: () {
-                          _showShiftActionDialog(context, dayName, hourName,
-                              staffMember.matricule);
-                        },
-                        trailing: IconButton(
-                          icon: const Icon(Icons.info),
-                          onPressed: () {
-                            // Todo
-                          },
-                        ),
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              // Only show the confirmation button if `set` is false
+                              if ((!staffMember.set) &&
+                                  (userRole?.toLowerCase() == 'admin'))
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    iconColor: Colors.blue,
+                                    padding: EdgeInsets.all(
+                                        12.0), // Adjust padding as needed
+                                    shape:
+                                        CircleBorder(), // Make the button circular
+                                  ),
+                                  child: Icon(Icons.check),
+                                  onPressed: () {
+                                    _showConfirmationDialog(
+                                      context,
+                                      'Confirm Shift',
+                                      'Are you sure you want to confirm this shift?',
+                                      () => _confirmShift(
+                                          context, staffMember.matricule),
+                                    );
+                                  },
+                                ),
+                              if ((userRole?.toLowerCase() == 'admin') ||
+                                  ((username == staffMember.matricule) &&
+                                      (staffMember.set == false)))
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    iconColor: Colors.red,
+                                    padding: EdgeInsets.all(
+                                        12.0), // Adjust padding as needed
+                                    shape:
+                                        CircleBorder(), // Make the button circular
+                                  ),
+                                  child: Icon(Icons.delete_forever),
+                                  onPressed: () {
+                                    _showConfirmationDialog(
+                                      context,
+                                      'Remove Shift',
+                                      'Are you sure you want to remove this shift?',
+                                      () => _removeShift(
+                                          context, staffMember.matricule),
+                                    );
+                                  },
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   }).toList(),
@@ -470,73 +597,56 @@ class DailyView extends StatelessWidget {
     );
   }
 
-  void _showShiftActionDialog(
-      BuildContext context, String dayName, String hourName, String matricule) {
+  void _confirmShift(BuildContext context, String matricule) {
     final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+    shiftProvider
+        .confirmStaff(
+      shiftProvider.shifts[0].cafeName,
+      dayName,
+      hourName,
+      matricule,
+    )
+        .then((_) {
+      Provider.of<ShiftProvider>(context, listen: false).fetchAllShifts();
+      Navigator.of(context).pop();
+    });
+  }
 
+  void _removeShift(BuildContext context, String matricule) {
+    final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+    shiftProvider
+        .removeStaff(
+      shiftProvider.shifts[0].cafeName,
+      dayName,
+      hourName,
+      matricule,
+    )
+        .then((_) {
+      Provider.of<ShiftProvider>(context, listen: false).fetchAllShifts();
+      Navigator.of(context).pop();
+    });
+  }
+
+  void _showConfirmationDialog(BuildContext context, String title,
+      String message, VoidCallback onConfirm) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Volunteer: $matricule'),
-          content: const Text('What would you like to do'),
+          title: Text(title),
+          content: Text(message),
           actions: <Widget>[
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Confirm Shift'),
-              onPressed: () {
-                shiftProvider
-                    .confirmStaff(
-                  shiftProvider.shifts[0].cafeName,
-                  dayName,
-                  hourName,
-                  matricule,
-                )
-                    .then((_) {
-                  Provider.of<ShiftProvider>(context, listen: false)
-                      .fetchAllShifts();
-                  Navigator.of(context).pop();
-                });
-              },
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[400],
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              child: const Text('Remove Shift'),
-              onPressed: () {
-                shiftProvider
-                    .removeStaff(
-                  shiftProvider.shifts[0].cafeName,
-                  dayName,
-                  hourName,
-                  matricule,
-                )
-                    .then((_) {
-                  Provider.of<ShiftProvider>(context, listen: false)
-                      .fetchAllShifts();
-                  Navigator.of(context).pop();
-                });
-              },
-            ),
             TextButton(
               child: const Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: const Text('Confirm'),
+              onPressed: () {
+                onConfirm(); // Call the provided callback function
+                Navigator.of(context).pop(); // Close the dialog
               },
             ),
           ],

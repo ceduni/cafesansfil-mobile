@@ -3,9 +3,12 @@ import 'package:app/modeles/Cafe.dart';
 import 'package:app/modeles/Stock.dart';
 import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/stock_provider.dart';
+import 'package:app/screens/others%20screens/editMenuItem.dart';
 import 'package:app/screens/side%20bar/side_bar.dart';
+import 'package:app/services/StockService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 class Article extends StatefulWidget {
@@ -52,42 +55,138 @@ class _ArticleState extends State<Article> {
       itemCount: menuItems.length,
       itemBuilder: (context, index) {
         MenuItem menuItem = menuItems[index];
-        return ListTile(
-          leading: menuItem.imageUrl.isNotEmpty
-              ? Image.network(
-                  menuItem.imageUrl,
-                  width: 50, // Ajustez la largeur selon vos besoins
-                  height: 50, // Ajustez la hauteur selon vos besoins
-                  fit: BoxFit.cover, // Ajustez le fit pour bien adapter l'image
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    } else {
-                      return SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: Config.specialBlue,
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    (loadingProgress.expectedTotalBytes ?? 1)
-                                : null,
+        return Slidable(
+          key: ValueKey(menuItem.itemId),
+          startActionPane: ActionPane(
+            extentRatio: 0.25,
+            motion: const DrawerMotion(),
+            children: [
+              SlidableAction(
+                onPressed: (context) {
+                  _navigateToEditMenuItem(context, menuItem);
+                },
+                backgroundColor: Colors.blueGrey.shade200,
+                foregroundColor: Colors.white,
+                icon: Icons.edit,
+                label: 'Edit',
+              ),
+            ],
+          ),
+          endActionPane: ActionPane(
+            extentRatio: 0.25,
+            motion: const DrawerMotion(),
+            children: [
+              SlidableAction(
+                onPressed: (context) {
+                  _showDeleteConfirmationDialog(context, menuItem);
+                },
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                icon: Icons.delete,
+                label: 'Delete',
+              ),
+            ],
+          ),
+          child: ListTile(
+            leading: menuItem.imageUrl.isNotEmpty
+                ? Image.network(
+                    menuItem.imageUrl,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (BuildContext context, Widget child,
+                        ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      } else {
+                        return SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: Config.specialBlue,
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      (loadingProgress.expectedTotalBytes ?? 1)
+                                  : null,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                  errorBuilder: (BuildContext context, Object error,
-                      StackTrace? stackTrace) {
-                    return const Icon(Icons.broken_image);
-                  },
-                )
-              : const Icon(Icons.image_not_supported),
-          title: Text(menuItem.name),
+                        );
+                      }
+                    },
+                    errorBuilder: (BuildContext context, Object error,
+                        StackTrace? stackTrace) {
+                      return const Icon(Icons.broken_image);
+                    },
+                  )
+                : const Icon(Icons.image_not_supported),
+            title: Text(menuItem.name),
+          ),
         );
       },
+    );
+  }
+
+// Example function to show delete confirmation
+  void _showDeleteConfirmationDialog(BuildContext context, MenuItem item) {
+    String itemName = item.name;
+    String cafeSlug =
+        Provider.of<CafeProvider>(context, listen: false).selectedCafe!.slug;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Deletion'),
+          content: Text('Are you sure you want to delete $itemName?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Call the delete API
+                try {
+                  final stockService = StockService();
+                  await stockService.removeMenuItem(cafeSlug, item.slug);
+
+                  await fetch();
+
+                  // Show success message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('$itemName deleted successfully')),
+                  );
+                  Navigator.of(context).pop(); // Dismiss the dialog
+                } catch (e) {
+                  // Handle error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to delete $itemName')),
+                  );
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+// Example function to navigate to edit screen
+  void _navigateToEditMenuItem(BuildContext context, MenuItem menuItem) {
+    // Pass a callback to fetch the updated data after returning from the edit screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditMenuItemScreen(
+          menuItem: menuItem,
+          onUpdate: fetch, // Pass the fetch method here
+        ),
+      ),
     );
   }
 

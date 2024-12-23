@@ -31,7 +31,7 @@ export class MessageRoutes {
           });
       } catch (err) {
           console.error("Error sending message:", err);
-          res.status(500).send({ message: "Internal Server Error", error: err });
+          res.status(404).send({ message: "Internal Server Error", error: err });
       }
   }
   
@@ -43,7 +43,7 @@ export class MessageRoutes {
         res.status(200).send(messages);
       } catch (err) {
         console.error("Error fetching messages:", err);
-        res.status(500).send({ message: "Internal Server Error", error: err });
+        res.status(404).send({ message: "Internal Server Error", error: err });
       }
     }
     

@@ -51,7 +51,6 @@ class MessageService {
       String senderId, String receiverId, String content) async {
     final token = await _authService.getToken();
     final currentTime = DateTime.now().toIso8601String();
-    print('${Config.baseUrl}/messages');
     final response = await http.post(
       Uri.parse('${Config.baseUrl}/messages'),
       headers: {
@@ -65,7 +64,6 @@ class MessageService {
         'timestamp': currentTime
       }),
     );
-    print('1');
     if (response.statusCode == 200) {
       print('Message sent successfully');
     } else {

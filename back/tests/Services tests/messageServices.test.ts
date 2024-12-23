@@ -27,6 +27,7 @@ describe("MessageService Tests", () => {
             const result = await messageService.saveMessage(mockMessage.senderId, mockMessage.receiverId, mockMessage.content);
             expect(result).toEqual(mockMessage);
             expect(Message.prototype.save).toHaveBeenCalled();
+            expect(encryptMessage).toHaveBeenCalledWith(mockMessage.content);
         });
     });
 
@@ -36,14 +37,17 @@ describe("MessageService Tests", () => {
                 { toObject: () => ({ senderId: "user1", receiverId: "user2", content: "encryptedHello!", timestamp: new Date() }) },
                 { toObject: () => ({ senderId: "user2", receiverId: "user1", content: "encryptedHi!", timestamp: new Date() }) },
             ];
-
-            (Message.find as jest.Mock).mockResolvedValue(mockMessages);
+    
+            // Mock the find method to return a query object that has a sort method
+            (Message.find as jest.Mock).mockReturnValue({
+                sort: jest.fn().mockResolvedValue(mockMessages),
+            });
             (decryptMessage as jest.Mock).mockReturnValueOnce("Hello!").mockReturnValueOnce("Hi!");
-
+    
             const result = await messageService.getMessages("user1", "user2");
             expect(result).toHaveLength(2);
             expect(result[0].content).toBe("Hello!");
             expect(result[1].content).toBe("Hi!");
         });
-    });
+    });    
 });

@@ -27,7 +27,8 @@ class CafeProvider with ChangeNotifier {
   Future<void> fetchCafe() async {
     _isLoading = true;
     try {
-      _cafe = _selectedCafe;
+      //_cafe = _selectedCafe;
+      _cafe = await CafeService().getCafeBySlug(_selectedCafe!.slug);
 
       _isLoading = false;
     } catch (e) {
