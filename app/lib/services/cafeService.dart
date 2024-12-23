@@ -11,6 +11,8 @@ class CafeService {
           'Content-Type': 'application/json',
         });
     if (response.statusCode == 200) {
+      /*final List<dynamic> cafesJson =
+          json.decode(response.body);*/ // Decode the response body
       final List<dynamic> cafesJson = json
           .decode(utf8.decode(response.bodyBytes)); // Decode the response body
 
@@ -35,6 +37,7 @@ class CafeService {
         });
 
     if (response.statusCode == 200) {
+      //final data = jsonDecode(response.body);
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       return Cafe.fromJson(data);
     } else {

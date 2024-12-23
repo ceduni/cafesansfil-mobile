@@ -85,7 +85,41 @@ class StockService {
       // Handle error response
       throw Exception('Failed to update menu item: ${response.body}');
     }
-  }
+  } /*
+
+  Future<String> updateMenuItem(
+      String cafeSlug, String itemSlug, MenuItem item) async {
+    final token = await _authService.getToken();
+    String message = "";
+    final response = await http.put(
+        Uri.parse(
+            "https://cafesansfil-api-r0kj.onrender.com/api/cafes/$cafeSlug/menu/$itemSlug"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json'
+        },
+        body: {
+          "category": item.category,
+          "description": item.description,
+          "image_url": item.imageUrl,
+          "in_stock": item.inStock,
+          "name": item.name,
+          "options": item.options,
+          "price": item.price,
+          "tags": item.tags
+        });
+    // Check the response status
+    if (response.statusCode == 200) {
+      message = 'Success: Menu item updated successfully';
+      print('Menu item updated successfully: ${response.body}');
+      return message;
+    } else {
+      // Handle error response
+      print(
+          'Failed to update menu item: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to update menu item: ${response.body}');
+    }
+  }*/
 
   Future<String> removeMenuItem(String cafeSlug, String itemSlug) async {
     final token = await _authService.getToken();
@@ -100,10 +134,13 @@ class StockService {
     if (response.statusCode == 200) {
       message = 'Menu item removed successfully.';
       message = 'Success: $message';
+      print('Menu item removed successfully.');
       return message;
     } else {
       message =
           'Failed to remove menu item. Status code: ${response.statusCode} - ${response.body}';
+      print('Failed to remove menu item. Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
       throw Exception('Failed to remove menu item from cafe $cafeSlug');
     }
   }
