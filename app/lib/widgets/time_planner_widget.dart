@@ -301,7 +301,6 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
         if (dayShift != null) {
           for (var hourlyShift in dayShift.hours) {
             if (hourlyShift.staff.isNotEmpty) {
-              // Check if staff length is greater than 0
               tasks.add(
                 TimePlannerTask(
                   color: const Color.fromARGB(10, 33, 226, 243), // Task color
@@ -380,7 +379,7 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
 
     for (int i = 0; i < numCircles; i++) {
       if (i < 3) {
-        // Add only the first three colors
+        // Add first three colors
         circles.add(
           Container(
             margin: const EdgeInsets.all(2.0),
@@ -401,7 +400,7 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
             height: 10,
             child: Icon(
               Icons.add,
-              size: 10, // Adjust the size of the icon
+              size: 10, // size of the icon
               color: Colors.black, // Color of the plus icon
             ),
           ),

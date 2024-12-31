@@ -107,16 +107,21 @@ class AuthService {
       String email = data['email'];
       String firstName = data['first_name'];
       String lastName = data['last_name'];
+      String matricule = data['matricule'];
       String username = data['username'];
+      String photoUrl = data['photo_url'];
       // Optionally update refresh token if provided
       if ((data['email'] != null) &&
           (data['first_name'] != null) &&
           (data['last_name'] != null) &&
+          (data['matricule'] != null) &&
           (data['username'] != null)) {
         await storage.write(key: 'email', value: email);
         await storage.write(key: 'first_name', value: firstName);
         await storage.write(key: 'last_name', value: lastName);
         await storage.write(key: 'username', value: username);
+        await storage.write(key: 'matricule', value: matricule);
+        await storage.write(key: 'photo_url', value: photoUrl);
       }
     } else {
       throw Exception('Failed to refresh token: ${response.body}');
@@ -161,12 +166,24 @@ class AuthService {
     return await storage.read(key: 'token');
   }
 
+  Future<String?> getEmail() async {
+    return await storage.read(key: 'email');
+  }
+
   Future<String?> getUsername() async {
     return await storage.read(key: 'username');
   }
 
   Future<String?> getUserRole() async {
     return await storage.read(key: 'role');
+  }
+
+  Future<String?> getMatricule() async {
+    return await storage.read(key: 'matricule');
+  }
+
+  Future<String?> getPhotoUrl() async {
+    return await storage.read(key: 'photo_url');
   }
 
   bool isTokenExpired(String token) {

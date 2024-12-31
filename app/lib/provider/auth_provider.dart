@@ -9,6 +9,10 @@ class AuthProvider extends ChangeNotifier {
   String? _userRole;
   String? _firstname;
   String? _lastname;
+  String? _matricule;
+  String? _email;
+  String? _photoUrl;
+
   List<String> _cafes = [];
 
   String? get token => _token;
@@ -17,6 +21,9 @@ class AuthProvider extends ChangeNotifier {
   String? get firstname => _firstname;
   String? get lastname => _lastname;
   String? get userRole => _userRole;
+  String? get matricule => _matricule;
+  String? get email => _email;
+  String? get photoUrl => _photoUrl;
 
   Future<void> login(String email, String password) async {
     try {
@@ -53,6 +60,27 @@ class AuthProvider extends ChangeNotifier {
     await _authService.storeUserDetails();
     _lastname = await _authService.getLastName();
     return _lastname;
+  }
+
+  Future<String?> getPhotoUrl() async {
+    await _authService.storeUserDetails();
+    return await _authService.getPhotoUrl();
+  }
+
+  Future<List<String?>> getUserDetails() async {
+    // Ensure user details are stored first
+    await _authService.storeUserDetails();
+
+    // Fetch user details using AuthService methods
+    _firstname = await _authService.getFirstName();
+    _lastname = await _authService.getLastName();
+    _username = await _authService.getUsername();
+    _matricule = await _authService.getMatricule();
+    _email = await _authService.getEmail();
+    _photoUrl = await _authService.getPhotoUrl();
+
+    // Return a list containing all the user details
+    return [_firstname, _lastname, _username, _matricule, _email, _photoUrl];
   }
 
   void setTheUsername(String? username) {

@@ -26,7 +26,34 @@ class Sidebar extends StatelessWidget {
                 AppLocalizations.of(context)!.sidebar_profile,
                 style: style,
               ),
+              onTap: () {
+                /*Navigator.push(
+                  context,
+                 MaterialPageRoute(builder: (context) => const UserProfilePage()),
+                );*/
+              },
             ),
+            /* ListTile(
+              leading: photoUrl != null
+                  ? CircleAvatar(
+                      backgroundImage: NetworkImage(photoUrl),
+                    )
+                  : const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                    ),
+              title: Text(
+                '${firstName ?? ''} ${lastName ?? ''}', // Combine first and last name
+                style: style,
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const UserProfilePage()),
+                );
+              },
+            ),*/
             ListTile(
               leading: const Icon(
                 Icons.settings,
