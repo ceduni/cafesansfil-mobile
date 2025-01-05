@@ -22,13 +22,12 @@ class CafeProvider with ChangeNotifier {
     fetchCafe();
   }
 
-  List<MenuItem> get getMenuItems => _cafe?.menuItems ?? [];
+  List<MenuItem> get getMenuItems => _selectedCafe?.menuItems ?? [];
 
   Future<void> fetchCafe() async {
     _isLoading = true;
     try {
       _cafe = _selectedCafe;
-      //_cafe = await CafeService().getCafeBySlug(_selectedCafe!.slug);
 
       _isLoading = false;
     } catch (e) {

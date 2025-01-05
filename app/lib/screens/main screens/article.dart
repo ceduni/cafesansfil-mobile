@@ -127,7 +127,6 @@ class _ArticleState extends State<Article> {
     );
   }
 
-// Example function to show delete confirmation
   void _showDeleteConfirmationDialog(BuildContext context, MenuItem item) {
     String itemName = item.name;
     String cafeSlug =
@@ -148,11 +147,13 @@ class _ArticleState extends State<Article> {
             ),
             TextButton(
               onPressed: () async {
-                // Call the delete API
+                // Calling the web API
                 try {
                   final stockService = StockService();
                   await stockService.removeMenuItem(cafeSlug, item.slug);
 
+                  Provider.of<CafeProvider>(context, listen: false)
+                      .setSelectedCafe(cafeSlug);
                   await fetch();
 
                   // Show success message
@@ -176,16 +177,11 @@ class _ArticleState extends State<Article> {
     );
   }
 
-// Example function to navigate to edit screen
   void _navigateToEditMenuItem(BuildContext context, MenuItem menuItem) {
-    // Pass a callback to fetch the updated data after returning from the edit screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditMenuItemScreen(
-          menuItem: menuItem,
-          onUpdate: fetch, // Pass the fetch method here
-        ),
+        builder: (context) => EditMenuItemScreen(menuItem: menuItem),
       ),
     );
   }

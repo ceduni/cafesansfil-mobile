@@ -6,10 +6,8 @@ import 'package:provider/provider.dart';
 
 class EditMenuItemScreen extends StatefulWidget {
   final MenuItem menuItem;
-  final VoidCallback onUpdate;
 
-  const EditMenuItemScreen(
-      {Key? key, required this.menuItem, required this.onUpdate})
+  const EditMenuItemScreen({Key? key, required this.menuItem})
       : super(key: key);
 
   @override
@@ -75,8 +73,8 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
       String itemSlug = widget.menuItem.slug;
       String message =
           await StockService().updateMenuItem(cafeSlug, itemSlug, updatedItem);
-      widget.onUpdate(); // This will trigger the fetch method in Article screen
-
+      Provider.of<CafeProvider>(context, listen: false)
+          .setSelectedCafe(selectedCafe.cafeId);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(message),
         backgroundColor: Colors.blue[400],

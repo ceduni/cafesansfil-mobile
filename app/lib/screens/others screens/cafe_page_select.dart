@@ -15,7 +15,7 @@ class SelectCafePage extends StatelessWidget {
     // Get the actual username from your auth provider
     final String username = authProvider.username!;
     String? userRole = authProvider.userRole;
-    print(userRole);
+    //print(userRole);
     return Scaffold(
       appBar: AppBar(title: const Text('Select Cafe Where you are Volunteer')),
       body: Column(
@@ -70,10 +70,12 @@ class SelectCafePage extends StatelessWidget {
                       return ListTile(
                         title: ElevatedButton(
                           child: Text(
-                              '${cafeRoleInfo.cafeName}- Role: ${cafeRoleInfo.role}'),
+                              '${cafeRoleInfo.cafeName}- Role: ${cafeRoleInfo.role}',
+                              selectionColor:
+                                  Color.fromARGB(255, 138, 199, 249)),
                           onPressed: () {
                             // Set the selected café in CafeProvider
-                            print(cafeRoleInfo.cafeId);
+                            //print(cafeRoleInfo.cafeId);
                             cafeProvider.setSelectedCafe(cafeRoleInfo.cafeId);
                             authProvider.setTheUserRole(cafeRoleInfo.role);
                             // Navigate to the café's home page when clicking on a café
