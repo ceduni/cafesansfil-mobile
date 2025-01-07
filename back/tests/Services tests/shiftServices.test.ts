@@ -1,17 +1,72 @@
 import { MainController } from "../../src/contollers/mainController";
 import ShiftService from "../../src/services/shiftServices";
-import { IShift } from "../../src/models/DatabaseModels/shiftModel";
+import { IShift, ShiftModel } from "../../src/models/DatabaseModels/shiftModel";
 
 let server: MainController;
 let shiftService: ShiftService;
 
-beforeAll(() => {
+beforeAll(async () => {
   server = new MainController();
   shiftService = new ShiftService();
+  
+  // Seed the database with a test shift
+  await ShiftModel.create({
+    cafe_id: "1",
+    cafe_name: "TestCafe",
+    shifts: {
+      monday: {
+        hours: [
+          {
+            hourName: "10:00",
+            staffCountmin: 1,
+            staff: []
+          }
+        ]
+      },
+      tuesday: {
+        hours: [
+          {
+            hourName: "10:00",
+            staffCountmin: 1,
+            staff: []
+          }
+        ]
+      },
+      wednesday: {
+        hours: [
+          {
+            hourName: "11:00",
+            staffCountmin: 1,
+            staff: []
+          }
+        ]
+      },
+      thursday: {
+        hours: [
+          {
+            hourName: "12:00",
+            staffCountmin: 1,
+            staff: []
+          }
+        ]
+      },
+      friday: {
+        hours: [
+          {
+            hourName: "14:00",
+            staffCountmin: 1,
+            staff: []
+          }
+        ]
+      },
+    }
+  });
 });
 
 afterAll(async () => {
   await server.closeDatabaseConnection();
+  // Clean up the database after tests
+  await ShiftModel.deleteMany({});
 });
 
 describe("ShiftService test", () => {
@@ -25,17 +80,18 @@ describe("ShiftService test", () => {
   describe("addStaffToHour", () => {
     it("should add staff to a specific hour on a specific day", async () => {
       const cafeName = "TestCafe";
-      const day = "monday" as const;
+      const day = "monday";
       const hourName = "10:00";
       const matricule = "123456";
-      const name = "John Doe"; // Include the name since it's required
+      const name = "John Doe";
 
       const updatedShift = await shiftService.addStaffToHour(cafeName, day, hourName, matricule, name);
+      console.log(updatedShift);
       expect(updatedShift).not.toBeNull();
       if (updatedShift) {
         const targetHour = updatedShift.shifts[day]?.hours.find(hr => hr.hourName === hourName);
         expect(targetHour?.staff).toEqual(
-          expect.arrayContaining([{ matricule, set: false, name }]) // Include the name in the expectation
+          expect.arrayContaining([{ matricule, set: false, name }])
         );
       }
     });
@@ -47,13 +103,16 @@ describe("ShiftService test", () => {
       const day = "monday" as const;
       const hourName = "10:00";
       const matricule = "123456";
+
+      // First, add staff before trying to remove them
+      await shiftService.addStaffToHour(cafeName, day, hourName, matricule, "John Doe");
       
       const updatedShift = await shiftService.removeStaffFromHour(cafeName, day, hourName, matricule);
       expect(updatedShift).not.toBeNull();
       if (updatedShift) {
         const targetHour = updatedShift.shifts[day]?.hours.find(hr => hr.hourName === hourName);
         expect(targetHour?.staff).not.toEqual(
-          expect.arrayContaining([{ matricule, set: false }]) // Match with the structure, set can be false or true
+          expect.arrayContaining([{ matricule, set: false }])
         );
       }
     });
@@ -65,7 +124,10 @@ describe("ShiftService test", () => {
       const day = "monday" as const;
       const hourName = "10:00";
       const matricule = "123456";
-      
+
+      // First, add staff before confirming them
+      await shiftService.addStaffToHour(cafeName, day, hourName, matricule, "John Doe");
+
       const updatedShift = await shiftService.confirmStaff(cafeName, day, hourName, matricule);
       expect(updatedShift).not.toBeNull();
       if (updatedShift) {
@@ -81,30 +143,12 @@ describe("ShiftService test", () => {
       const cafeName = "TestCafe";
       const day = "monday" as const;
       const hourName = "10:00";
-      
+
+      // First, add staff before fetching the list
+      await shiftService.addStaffToHour(cafeName, day, hourName, "123456", "John Doe");
+
       const staffList = await shiftService.getStaffList(cafeName, day, hourName);
       expect(staffList).toBeInstanceOf(Array);
     });
   });
 });
-
-
-/*
-describe("ShiftService Tests", () => {
-  it("getShifts should return an array of shifts", async () => {
-    const shifts: IShift[] = await shiftService.getShifts();
-    expect(shifts).toBeInstanceOf(Array);
-  });
-
-  it("getShiftsByMatricule should return a shift by matricule", async () => {
-    const matricule = "20281527"; // existing shift
-    const shift: IShift | null = await shiftService.getShiftsByMatricule(
-      matricule
-    );
-    if (shift) {
-      expect(shift.matricule).toBe(matricule);
-    } else {
-      expect(true).toBe(false); // Shift not found, test should fail
-    }
-  });
-});*/

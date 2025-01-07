@@ -44,10 +44,8 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
       ),
       body: shiftProvider.shifts.isNotEmpty
           ? isWeekView
-              ? _buildWeekView(
-                  shiftProvider) // Use separate method for week view
-              : _buildDailyView(
-                  shiftProvider) // Use separate method for daily view
+              ? _buildWeekView(shiftProvider)
+              : _buildDailyView(shiftProvider)
           : const Center(child: CircularProgressIndicator()),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

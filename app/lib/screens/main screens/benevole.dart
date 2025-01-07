@@ -49,9 +49,12 @@ class _BenevoleState extends State<Benevole> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     String? userRole = authProvider.userRole;
+    String username = authProvider.username!;
+
     return Scaffold(
       drawer: const Sidebar(),
       appBar: AppBar(
@@ -67,13 +70,16 @@ class _BenevoleState extends State<Benevole> {
             return Center(
                 child: Text('Error: ${volunteerProvider.errorMessage}'));
           } else {
+            // Filter out the current user from the volunteers list
+            final filteredVolunteers = volunteerProvider.volunteers
+                .where((volunteer) => volunteer.username != username)
+                .toList();
+
             return Center(
               child: ListView.builder(
-                itemCount:
-                    (context.read<VolunteerProvider>().volunteers).length,
+                itemCount: filteredVolunteers.length,
                 itemBuilder: (context, index) {
-                  final volunteer =
-                      (context.read<VolunteerProvider>().volunteers)[index];
+                  final volunteer = filteredVolunteers[index];
                   return Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: Slidable(
@@ -129,11 +135,10 @@ class _BenevoleState extends State<Benevole> {
       ),
       floatingActionButton: Stack(
         children: [
-          //(Provider.of<AuthProvider>(context).userRole == 'admin')
           if (userRole?.toLowerCase() == 'admin')
             Positioned(
               bottom: 16,
-              right: 70, // Offset to avoid overlap
+              right: 70,
               child: FloatingActionButton(
                 onPressed: () {
                   Navigator.push(context,
@@ -146,11 +151,10 @@ class _BenevoleState extends State<Benevole> {
                 ),
               ),
             ),
-          // Second FloatingActionButton for broadcasting
           if (userRole?.toLowerCase() == 'admin')
             Positioned(
               bottom: 16,
-              right: 10, // Positioned to the right of the first button
+              right: 10,
               child: FloatingActionButton(
                 onPressed: () {
                   Navigator.push(

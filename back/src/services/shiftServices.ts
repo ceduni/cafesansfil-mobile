@@ -23,8 +23,14 @@ export class ShiftService {
       if (shift) {
         const targetHour = shift.shifts[day]?.hours.find(hr => hr.hourName === hourName);
         if (targetHour) {
-          targetHour.staff.push({ matricule, set: false, name }); // Add new staff
+
+          const existingStaff = targetHour.staff.find(staff => staff.matricule === matricule);
+          if (existingStaff) {
+            return null;
+          }
+          targetHour.staff.push({ matricule, set: false, name });
           await shift.save();
+          console.log(shift);
           return shift;
         }
       }
@@ -34,6 +40,7 @@ export class ShiftService {
       return null;
     }
   }
+
 
   // Remove staff from a specific hour on a specific day
   public async removeStaffFromHour(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string): Promise<IShift | null> {
