@@ -2,6 +2,13 @@ import Message from '../models/DatabaseModels/messageModel';
 import { encryptMessage, decryptMessage } from '../middleware/encryptionService';
 
 export class MessageService {
+  /**
+   * This function allow us to save the messages in the db
+   * @param senderId 
+   * @param receiverId 
+   * @param content 
+   * @returns 
+   */
   async saveMessage(senderId: string, receiverId: string, content: string) {
     const encryptedContent = encryptMessage(content); // Encrypt the message content
     const message = new Message({
@@ -13,6 +20,12 @@ export class MessageService {
     return await message.save();
   }
 
+/**
+ * this function allow us to retrieve the messages
+ * @param senderId 
+ * @param receiverId 
+ * @returns 
+ */
   async getMessages(senderId: string, receiverId: string) {
     const messages = await Message.find({
       $or: [

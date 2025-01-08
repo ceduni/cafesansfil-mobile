@@ -27,8 +27,8 @@ export class MessageRoutes {
           const message = await this.messageService.saveMessage(senderId, receiverId, content); // Save and return the message
           res.status(200).send({
               message: "Message sent successfully",
-              data: message, // Return the message data
-          });
+              data: message, 
+          });// Return the message data
       } catch (err) {
           console.error("Error sending message:", err);
           res.status(404).send({ message: "Internal Server Error", error: err });

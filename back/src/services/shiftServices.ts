@@ -6,7 +6,10 @@ type DayOfTheWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
 export class ShiftService {
   public constructor() {}
 
-  // Retrieve all shifts
+  /**
+   * this function retrieves all shifts
+   * @returns 
+   */
   public async getAllShifts(): Promise<IShift[]> {
     try {
       return await ShiftModel.find().exec();
@@ -16,7 +19,15 @@ export class ShiftService {
     }
   }
 
-  // Add staff to a specific hour on a specific day
+  /**
+   * this function adds a staff to a specific hour on a specific day
+   * @param cafeName 
+   * @param day 
+   * @param hourName 
+   * @param matricule 
+   * @param name 
+   * @returns 
+   */
   public async addStaffToHour(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string, name: string): Promise<IShift | null> {
     try {
       const shift = await ShiftModel.findOne({ cafe_name: cafeName });
@@ -41,8 +52,14 @@ export class ShiftService {
     }
   }
 
-
-  // Remove staff from a specific hour on a specific day
+  /**
+   * this function removes a staff from a specific hour on a specific day
+   * @param cafeName 
+   * @param day 
+   * @param hourName 
+   * @param matricule 
+   * @returns 
+   */
   public async removeStaffFromHour(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string): Promise<IShift | null> {
     try {
       const shift = await ShiftModel.findOne({ cafe_name: cafeName });
@@ -61,7 +78,14 @@ export class ShiftService {
     }
   }
 
-  // Confirm staff for a specific hour on a specific day
+  /**
+   * this function is needed to confirm staff for a specific hour on a specific day
+   * @param cafeName 
+   * @param day 
+   * @param hourName 
+   * @param matricule 
+   * @returns 
+   */
   public async confirmStaff(cafeName: string, day: DayOfTheWeek, hourName: string, matricule: string): Promise<IShift | null> {
     try {
         const shift = await ShiftModel.findOne({ cafe_name: cafeName });
@@ -83,7 +107,14 @@ export class ShiftService {
     }
   }
 
-  // Get the staff list for a specific day at a specific hour
+
+  /**
+   * this function is needed to get the staff list for a specific day at a specific hour
+   * @param cafeName 
+   * @param day 
+   * @param hourName 
+   * @returns 
+   */
   public async getStaffList(cafeName: string, day: DayOfTheWeek, hourName: string): Promise<IStaff[] | null> {
     try {
       const shift = await ShiftModel.findOne({ cafe_name: cafeName });
