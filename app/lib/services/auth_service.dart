@@ -68,19 +68,18 @@ class AuthService {
         },
         body: {
           'refresh_token': refreshToken,
-          'client_id': 'string', // Your Client ID
-          'client_secret': 'string' // Your Client Secret
+          'client_id': 'string',
+          'client_secret': 'string'
         });
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       String newAccessToken = data['access_token'];
-      // Optionally update refresh token if provided
       if (data['refresh_token'] != null) {
         await storeToken(newAccessToken, data['refresh_token']);
       } else {
-        await storeToken(
-            newAccessToken, refreshToken); // Keep the same refresh token
+        // Keep the same refresh token and store the new access token
+        await storeToken(newAccessToken, refreshToken);
       }
       return newAccessToken;
     } else {
@@ -88,7 +87,6 @@ class AuthService {
     }
   }
 
-  //a modifier aprest l'ajout des routes
   Future<void> storeUserDetails() async {
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -110,7 +108,6 @@ class AuthService {
       String matricule = data['matricule'];
       String username = data['username'];
       String photoUrl = data['photo_url'];
-      // Optionally update refresh token if provided
       if ((data['email'] != null) &&
           (data['first_name'] != null) &&
           (data['last_name'] != null) &&
@@ -128,7 +125,6 @@ class AuthService {
     }
   }
 
-  //a modifier
   Future<List<String>> getUserCafes(String username) async {
     final token = await storage.read(key: 'token');
     final response = await http.get(
@@ -142,7 +138,6 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-      // Extract café names and return as a list of strings
       return data.map<String>((json) => json['name'] as String).toList();
     } else {
       throw Exception('Failed to load cafes: ${response.body}');

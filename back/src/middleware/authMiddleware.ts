@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken"; // Make sure to install this package
+import jwt from "jsonwebtoken";
 import { config } from 'dotenv';
 
 config(); // Load environment variables
@@ -13,8 +13,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
     try {
         console.log(token);
-        const decoded = jwt.verify(token, process.env.PHRASE_PASS!); // Verify the token
-        req.user = decoded; // Attach the decoded user information to the request
+        const decoded = jwt.verify(token, process.env.PHRASE_PASS!); 
+        req.user = decoded; 
         next(); // Proceed to the next middleware or route handler
     } catch (error) {
         console.error("Token verification failed:", error);

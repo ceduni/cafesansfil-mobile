@@ -37,7 +37,7 @@ export class MessageRoutes {
   
     public async getMessages(req: Request, res: Response) {
       try {
-        // Extract senderId and receiverId from the route parameters instead of query
+        
         const { senderId, receiverId } = req.params;
         const messages = await this.messageService.getMessages(senderId, receiverId);
         res.status(200).send(messages);

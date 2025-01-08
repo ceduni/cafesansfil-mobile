@@ -17,7 +17,7 @@ const StaffSchema: Schema = new Schema({
 // Interface for hourly shifts
 interface IHourlyShift {
   hourName: string;
-  staffCountmin: number; // Renamed from staffCount to staffCountmin
+  staffCountmin: number; 
   staff: IStaff[];
 }
 
@@ -26,7 +26,7 @@ const HourlyShiftSchema: Schema = new Schema({
   hourName: { type: String, required: true },
   staffCountmin: { type: Number, required: true }, // Count of minimum staff required
   staff: { 
-    type: [StaffSchema], // Using the staff schema here
+    type: [StaffSchema], 
     required: true 
   }
 });
@@ -69,8 +69,8 @@ const ShiftSchema: Schema = new Schema({
     wednesday: { type: DayShiftSchema, required: true },
     thursday: { type: DayShiftSchema, required: true },
     friday: { type: DayShiftSchema, required: true },
-    saturday: { type: DayShiftSchema, default: null }, // Optional
-    sunday: { type: DayShiftSchema, default: null },   // Optional
+    saturday: { type: DayShiftSchema, default: null }, 
+    sunday: { type: DayShiftSchema, default: null },
   }
 });
 

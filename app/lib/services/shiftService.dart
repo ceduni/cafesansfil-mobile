@@ -29,7 +29,7 @@ class ShiftService {
         'cafeName': cafeName,
         'hourName': hourName,
         'matricule': matricule,
-        'name': name, // Include name in the request body
+        'name': name,
       }),
     );
 

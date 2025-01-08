@@ -18,14 +18,14 @@ class RootPage extends StatefulWidget {
 class _RootPageState extends State<RootPage> {
   int currentPage = 1;
   List<Widget> pagesadmin = [
-    // barre de navigation
+    // Navbar
     const Benevole(),
     const Dashboard(),
     const Horaire(),
     const Article(),
   ];
   List<Widget> pagesbenevole = [
-    // barre de navigation
+    // Navbar
     const Benevole(),
     const Horaire(),
     const Article(),
@@ -35,10 +35,10 @@ class _RootPageState extends State<RootPage> {
     final authProvider =
         Provider.of<AuthProvider>(context); // Get AuthProvider instance
     final userRole = authProvider.userRole; // Get the current user role
-    //final userRole = "admin";
     if (userRole?.toLowerCase() != "admin") {
+      //Volunteer view
       return Scaffold(
-        body: pagesbenevole[currentPage], //const Dashboard(),
+        body: pagesbenevole[currentPage],
         bottomNavigationBar: NavigationBar(
           destinations: [
             NavigationDestination(
@@ -83,7 +83,8 @@ class _RootPageState extends State<RootPage> {
       );
     } else {
       return Scaffold(
-        body: pagesadmin[currentPage], //const Dashboard(),
+        //Admin View
+        body: pagesadmin[currentPage],
         bottomNavigationBar: NavigationBar(
           destinations: [
             NavigationDestination(

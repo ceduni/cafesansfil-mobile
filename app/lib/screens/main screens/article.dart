@@ -147,7 +147,7 @@ class _ArticleState extends State<Article> {
             ),
             TextButton(
               onPressed: () async {
-                // Calling the web API
+                // Call the  API
                 try {
                   final stockService = StockService();
                   await stockService.removeMenuItem(cafeSlug, item.slug);

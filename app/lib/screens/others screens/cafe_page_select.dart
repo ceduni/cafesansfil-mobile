@@ -12,7 +12,7 @@ class SelectCafePage extends StatelessWidget {
     final cafeProvider = Provider.of<CafeProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // Get the actual username from your auth provider
+    // Get the username from auth provider
     final String username = authProvider.username!;
     String? userRole = authProvider.userRole;
     //print(userRole);
@@ -74,11 +74,10 @@ class SelectCafePage extends StatelessWidget {
                               selectionColor:
                                   Color.fromARGB(255, 138, 199, 249)),
                           onPressed: () {
-                            // Set the selected café in CafeProvider
-                            //print(cafeRoleInfo.cafeId);
+                            // Set the selected café and the userole for futur use
                             cafeProvider.setSelectedCafe(cafeRoleInfo.cafeId);
                             authProvider.setTheUserRole(cafeRoleInfo.role);
-                            // Navigate to the café's home page when clicking on a café
+                            // Navigate to home page
                             Navigator.pushReplacementNamed(context, '/home');
                           },
                         ),

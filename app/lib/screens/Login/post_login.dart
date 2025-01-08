@@ -36,29 +36,37 @@ class _PostLoginRedirectPageState extends State<PostLoginRedirectPage> {
     if (authProvider.userRole == 'Admin') {
       print(authProvider.userRole);
       cafeRoles = await cafeProvider.getAdminCafe(username!);
-      CafeRoleInfo uniqueRoleInfo = cafeRoles.first;
-      cafeProvider.setSelectedCafe(uniqueRoleInfo.cafeId);
-      print(cafeRoles);
+      if (cafeRoles.isNotEmpty) {
+        CafeRoleInfo uniqueRoleInfo = cafeRoles.first;
+        cafeProvider.setSelectedCafe(uniqueRoleInfo.cafeId);
+        print(cafeRoles);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'this user is not an administrateur or does not have an admin account. Redirecting to login...')),
+        );
+        await Future.delayed(const Duration(seconds: 5));
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     } else {
       cafeRoles = await cafeProvider.getVolunteerCafe(username!);
     }
     print(cafeRoles);
 
     if (cafeRoles.isNotEmpty) {
-      // Redirect to cafe selection page if roles exist, regardless of whether it's an admin
+      // Redirect to cafe selection page or the home page
       if (authProvider.userRole == 'Admin') {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
         Navigator.pushReplacementNamed(context, '/select_cafe');
       }
     } else {
-      // Optional: Maybe handle a case where the user has no roles
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content:
-                Text('No roles found for this user. Redirecting to login...')),
+            content: Text(
+                'this user is not an administrateur or does not have an admin account. Redirecting to login...')),
       );
-      // You could choose to navigate somewhere else or show an error page
       await Future.delayed(const Duration(seconds: 10));
       Navigator.pushReplacementNamed(context, '/login');
     }

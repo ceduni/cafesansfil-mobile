@@ -16,7 +16,7 @@ class _HoraireState extends State<Horaire> {
   @override
   void initState() {
     super.initState();
-    // Fetch all shifts on initialization.
+    // Fetch all shifts
     Provider.of<ShiftProvider>(context, listen: false).fetchAllShifts();
   }
 
@@ -27,7 +27,7 @@ class _HoraireState extends State<Horaire> {
         title: Text('Horaire'),
       ),
       body: TimePlannerWidget(),
-      drawer: Sidebar(), // Include your side bar
+      drawer: Sidebar(),
     );
   }
 }

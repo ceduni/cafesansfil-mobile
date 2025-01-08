@@ -16,18 +16,16 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  int _selectedRole = 0; // 0 = Volunteer, 1 = Admin
+  int _selectedRole = 0;
 
   void _login() async {
     if (_emailController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
-      // Check if the selected role is either Admin (2) or Volunteer (0)
-
       final String email = _emailController.text.trim();
       final String password = _passwordController.text.trim();
 
       try {
-        // Appel de la méthode de login qui stocke le token
+        // Call the method login that store the token
         await Provider.of<AuthProvider>(context, listen: false)
             .login(email, password);
         // Redirect based on user role
@@ -111,9 +109,9 @@ class _LoginPageState extends State<LoginPage> {
               radiusStyle: true,
               onToggle: (index) {
                 setState(() {
-                  _selectedRole = index!; // Set selected account type
+                  _selectedRole = index!; // Set the selected account type
                 });
-                //_selectRole(index!);
+
                 print('switched to: $index');
               },
             ),

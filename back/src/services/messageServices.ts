@@ -23,7 +23,7 @@ export class MessageService {
 
     // Decrypt the content of each message before returning
     return messages.map(message => ({
-      ...message.toObject(), // Convert mongoose document to plain object
+      ...message.toObject(), 
       content: decryptMessage(message.content), // Decrypt content
     }));
   }

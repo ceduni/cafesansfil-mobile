@@ -439,14 +439,14 @@ class _TimePlannerWidgetState extends State<TimePlannerWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add Staff Member'),
+          title: const Text('Add Shift'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: dayNameController,
                 decoration: const InputDecoration(
-                    labelText: 'Day Name (ex: Monday, Friday)'),
+                    labelText: 'Day Name (ex: monday, friday)'),
               ),
               TextField(
                 controller: hourNameController,
@@ -543,8 +543,7 @@ class DailyView extends StatelessWidget {
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     iconColor: Colors.blue,
-                                    padding: EdgeInsets.all(
-                                        12.0), // Adjust padding as needed
+                                    padding: EdgeInsets.all(12.0),
                                     shape:
                                         CircleBorder(), // Make the button circular
                                   ),
@@ -565,8 +564,7 @@ class DailyView extends StatelessWidget {
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     iconColor: Colors.red,
-                                    padding: EdgeInsets.all(
-                                        12.0), // Adjust padding as needed
+                                    padding: EdgeInsets.all(12.0),
                                     shape:
                                         CircleBorder(), // Make the button circular
                                   ),

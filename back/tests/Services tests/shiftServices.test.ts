@@ -9,7 +9,6 @@ beforeAll(async () => {
   server = new MainController();
   shiftService = new ShiftService();
   
-  // Seed the database with a test shift
   await ShiftModel.create({
     cafe_id: "1",
     cafe_name: "TestCafe",
@@ -85,7 +84,7 @@ describe("ShiftService test", () => {
       const matricule = "123456";
       const name = "John Doe";
 
-      const updatedShift = await shiftService.addStaffToHour(cafeName, day, hourName, matricule, name);
+      const updatedShift = await shiftService.addStaffToHour(cafeName, day, hourName, matricule, name);//cause a issue because the response in not given in time so we get a null value
       console.log(updatedShift);
       expect(updatedShift).not.toBeNull();
       if (updatedShift) {
@@ -104,7 +103,7 @@ describe("ShiftService test", () => {
       const hourName = "10:00";
       const matricule = "123456";
 
-      // First, add staff before trying to remove them
+      // add staff before trying to remove them
       await shiftService.addStaffToHour(cafeName, day, hourName, matricule, "John Doe");
       
       const updatedShift = await shiftService.removeStaffFromHour(cafeName, day, hourName, matricule);
@@ -125,7 +124,7 @@ describe("ShiftService test", () => {
       const hourName = "10:00";
       const matricule = "123456";
 
-      // First, add staff before confirming them
+      //add staff before confirming them
       await shiftService.addStaffToHour(cafeName, day, hourName, matricule, "John Doe");
 
       const updatedShift = await shiftService.confirmStaff(cafeName, day, hourName, matricule);
@@ -144,7 +143,7 @@ describe("ShiftService test", () => {
       const day = "monday" as const;
       const hourName = "10:00";
 
-      // First, add staff before fetching the list
+      // add staff before fetching the list
       await shiftService.addStaffToHour(cafeName, day, hourName, "123456", "John Doe");
 
       const staffList = await shiftService.getStaffList(cafeName, day, hourName);

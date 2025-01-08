@@ -38,7 +38,6 @@ describe("MessageService Tests", () => {
                 { toObject: () => ({ senderId: "user2", receiverId: "user1", content: "encryptedHi!", timestamp: new Date() }) },
             ];
     
-            // Mock the find method to return a query object that has a sort method
             (Message.find as jest.Mock).mockReturnValue({
                 sort: jest.fn().mockResolvedValue(mockMessages),
             });

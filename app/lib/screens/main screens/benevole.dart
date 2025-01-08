@@ -90,7 +90,6 @@ class _BenevoleState extends State<Benevole> {
                               children: [
                                 SlidableAction(
                                   onPressed: (context) {
-                                    // Pass the VolunteerProvider instance to the confirmation dialog
                                     final volunteerProvider =
                                         Provider.of<VolunteerProvider>(context,
                                             listen: false);
@@ -192,20 +191,20 @@ class _BenevoleState extends State<Benevole> {
             ),
             TextButton(
               onPressed: () async {
-                // Call the delete method from your VolunteerService
+                // Call the delete method
                 Cafe? selectedCafe =
                     Provider.of<CafeProvider>(context, listen: false)
                         .selectedCafe;
                 String response = await VolunteerService()
                     .deleteVolunteer(selectedCafe!.slug, username);
 
-                // Remove the volunteer from the list if deletion was successful
+                // Remove the volunteer from the list of volunteer if deletion was successful
                 if (response == "Success: Volunteer deleted successfully.") {
-                  volunteerProvider
-                      .removeVolunteer(username); // Update the provider's list
+                  volunteerProvider.removeVolunteer(
+                      username); // Update the vonlonteers'slist
                 }
 
-                // Show a Snackbar with the response
+                // Show a Snackbar with the  returned response
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(response)),
                 );

@@ -43,14 +43,12 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
 
   void _saveMenuItem() async {
     if (_priceController.text.isEmpty || _tagsController.text.isEmpty) {
-      // Handle empty input case
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Please fill all fields'),
         backgroundColor: Colors.red,
       ));
       return;
     }
-
     // Create a new MenuItem using the old one with updated values
     MenuItem updatedItem = MenuItem(
       itemId: widget.menuItem.itemId,
@@ -66,7 +64,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
     );
 
     try {
-      // Get the cafe slug from the provider or wherever it's stored
+      // Get the cafe slug
       Cafe? selectedCafe =
           Provider.of<CafeProvider>(context, listen: false).selectedCafe;
       String cafeSlug = selectedCafe!.slug;

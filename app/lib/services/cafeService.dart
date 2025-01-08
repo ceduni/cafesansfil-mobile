@@ -27,7 +27,6 @@ class CafeService {
     }
   }
 
-  // Modify this method to use the new CafeModel as well
   Future<Cafe> getCafeBySlug(String cafeSlug) async {
     final response = await http.get(
         Uri.parse(

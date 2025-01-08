@@ -32,5 +32,5 @@ const UserSchema: Schema = new Schema({
   work_at: { type: String },
 });
 
-const UserModel = model<IUser>("User", UserSchema, "users"); // for selecting the collection
+const UserModel = model<IUser>("User", UserSchema, "users");
 export { UserModel, IUser };

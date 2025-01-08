@@ -1,4 +1,5 @@
 import 'package:app/config.dart';
+import 'package:app/modeles/Cafe.dart';
 import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/order_provider.dart';
 import 'package:app/provider/stock_provider.dart';
@@ -36,10 +37,6 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    /*String selectedCafeLogoUrl =
-        (Provider.of<CafeProvider>(context, listen: false).selectedCafe)!
-            .imageUrl;
-    print(selectedCafeLogoUrl);*/
     return Scaffold(
         drawer: const Sidebar(),
         appBar: AppBar(
@@ -69,13 +66,18 @@ class _DashboardState extends State<Dashboard> {
               child: Column(
                 children: [
                   // ----------- logo ------------
+
                   Center(
                     child: ClipRect(
                       child: SizedBox(
-                        height: 150,
-                        width: 150,
-                        child: Image.asset(
-                          'images/logo.png',
+                        height: 200,
+                        width: double.infinity,
+                        child: Image.network(
+                          //'images/logo.png',
+                          //selectedCafeLogoUrl,
+                          (Provider.of<CafeProvider>(context, listen: false)
+                                  .selectedCafe)!
+                              .imageUrl,
                           fit: BoxFit.cover,
                         ),
                       ),

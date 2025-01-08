@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js';
 import { config } from 'dotenv';
 
-config(); // Load environment variables
+config();
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default_key';
 

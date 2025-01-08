@@ -54,6 +54,7 @@ class Sidebar extends StatelessWidget {
                 );
               },
             ),*/
+            //--------setting--------
             ListTile(
               leading: const Icon(
                 Icons.settings,
@@ -67,6 +68,7 @@ class Sidebar extends StatelessWidget {
                 Navigator.pushNamed(context, '/settings');
               },
             ),
+            //---------notification--------
             ListTile(
               leading: const Icon(
                 Icons.notifications,
@@ -77,6 +79,7 @@ class Sidebar extends StatelessWidget {
                 style: style,
               ),
             ),
+            //-------logout---------
             const SizedBox(height: 300),
             ListTile(
               leading: const Icon(
@@ -89,9 +92,9 @@ class Sidebar extends StatelessWidget {
               ),
               onTap: () async {
                 await Provider.of<AuthProvider>(context, listen: false)
-                    .logout(); // Logout
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/login', (route) => false); // Redirect to login
+                    .logout();
+                Navigator.pushNamedAndRemoveUntil(context, '/login',
+                    (route) => false); // Redirect to login page
               },
             ),
           ],

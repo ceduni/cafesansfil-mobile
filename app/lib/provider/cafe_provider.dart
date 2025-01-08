@@ -47,7 +47,7 @@ class CafeProvider with ChangeNotifier {
 
     for (var cafe in _allCafes) {
       for (var staff in cafe.staff) {
-        if (staff.username == username) {
+        if (staff.username == username && (staff.role != "Admin")) {
           _cafesListRoles.add(CafeRoleInfo(
               cafeName: cafe.name, cafeId: cafe.cafeId, role: staff.role));
         }
@@ -76,7 +76,6 @@ class CafeProvider with ChangeNotifier {
     return _cafesListRoles;
   }
 
-  // Add a method to set the selected cafe
   Future<void> setSelectedCafe(String cafeSlug) async {
     _selectedCafe = await CafeService().getCafeBySlug(cafeSlug);
     notifyListeners(); // Notify listeners that the selected cafe has changed

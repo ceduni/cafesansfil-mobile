@@ -70,7 +70,7 @@ export class ShiftService {
             if (targetHour) {
                 const staff = targetHour.staff.find(staff => staff.matricule === matricule);
                 if (staff) {
-                    staff.set = true; // Set confirmed to true
+                    staff.set = true; 
                     await shift.save();
                     return shift;
                 }

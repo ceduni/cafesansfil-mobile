@@ -16,10 +16,10 @@ export class ShiftRoutes {
   }
 
   private init() {
-    this._router.get("/shifts/all", this.getAllShifts.bind(this)); // Get all shifts
-    this._router.post("/shifts/:day/addStaff", this.addStaffToHour.bind(this)); // Add staff to hour
-    this._router.delete("/shifts/:day/removeStaff", this.removeStaffFromHour.bind(this)); // Remove staff from hour
-    this._router.put("/shifts/:day/:hourName/confirmStaff", this.confirmStaff.bind(this)); // Confirm staff with hourName
+    this._router.get("/shifts/all", this.getAllShifts.bind(this));
+    this._router.post("/shifts/:day/addStaff", this.addStaffToHour.bind(this));
+    this._router.delete("/shifts/:day/removeStaff", this.removeStaffFromHour.bind(this)); 
+    this._router.put("/shifts/:day/:hourName/confirmStaff", this.confirmStaff.bind(this)); 
     this._router.get("/shifts/:cafeName/:day/:hourName/staff", this.getStaffList.bind(this));
   }
 

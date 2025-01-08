@@ -134,8 +134,7 @@ class _AddBenevoleState extends State<AddBenevole> {
                   try {
                     String message = await VolunteerService().addVolunteer(
                         cafeSlug, _controller.text, selectedOption);
-                    //String message = await VolunteerService().addVolunteer("tore-et-fraction", _controller.text, selectedOption);
-                    // pop up message
+
                     print(message);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -144,7 +143,7 @@ class _AddBenevoleState extends State<AddBenevole> {
                         content: Text(message,
                             style: const TextStyle(color: Colors.white)),
                         duration:
-                            const Duration(seconds: 4), // Durée du SnackBar
+                            const Duration(seconds: 4), // SnackBar duration
                       ),
                     );
                   } catch (e) {
@@ -159,7 +158,7 @@ class _AddBenevoleState extends State<AddBenevole> {
                             style: const TextStyle(color: Colors.white)),
                         duration: const Duration(seconds: 4),
                         behavior: SnackBarBehavior.floating,
-                        backgroundColor: Colors.red, // Durée du SnackBar
+                        backgroundColor: Colors.red, // SnackBar duration
                       ),
                     );
                   } finally {
@@ -169,8 +168,8 @@ class _AddBenevoleState extends State<AddBenevole> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Couleur de fond du bouton
-                  foregroundColor: Colors.white, // Couleur du texte du bouton
+                  backgroundColor: Colors.blue, // Backgound color
+                  foregroundColor: Colors.white, // Text Color
                   padding:
                       EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                   textStyle:
@@ -196,8 +195,8 @@ class _AddBenevoleState extends State<AddBenevole> {
                   _controller.clear();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // Couleur de fond du bouton
-                  foregroundColor: Colors.white, // Couleur du texte du bouton
+                  backgroundColor: Colors.red, // Backgound color
+                  foregroundColor: Colors.white, // Text Color
                   padding:
                       EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                   textStyle:
