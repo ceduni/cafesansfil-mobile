@@ -21,6 +21,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
 
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +78,9 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
         content: Text(message),
         backgroundColor: Colors.blue[400],
       ));
-      Navigator.pop(context); // Close the screen after saving
+
+    
+      
     } catch (e) {
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -95,8 +98,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
         title: Text('Edit of $name'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveMenuItem,
+            icon: Icon(Icons.edit, size: 26, color: Colors.black,), onPressed: () {  },
           )
         ],
       ),

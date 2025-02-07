@@ -111,7 +111,28 @@ class _ArticleState extends State<Article> {
                     },
                   )
                 : const Icon(Icons.image_not_supported),
-            title: Text(menuItem.name),
+            title: Row( 
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    menuItem.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                    ),
+            ),
+            Text(
+              '\$${menuItem.price.toStringAsFixed(2)}',
+              style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold), 
+            ),
+            ],
+            ),
+            subtitle: Text(
+              menuItem.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.grey),
+            ),
             onTap: () {
               _navigateToEditMenuItem(context, menuItem);
             },
@@ -199,7 +220,7 @@ class _ArticleState extends State<Article> {
                     'Error: ${stockProvider.errorMessage ?? cafeProvider.errorMessage}'));
           } else {
             return Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(2.0),
               child: Column(
                 children: [
                      Row(
@@ -285,7 +306,7 @@ class _ArticleState extends State<Article> {
                       ],
                     ),
                 
-                  const SizedBox(height: 20),
+                  const SizedBox(height:20),
                   Expanded(
                     child: buttonASelected == 0
                         ? ItemMenuList(cafeProvider.getMenuItems)
