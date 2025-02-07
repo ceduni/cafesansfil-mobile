@@ -19,8 +19,14 @@ class Article extends StatefulWidget {
 }
 
 class _ArticleState extends State<Article> {
-  bool isButtonASelected = true;
+  int buttonASelected = 0; // 0 = menu, 1 = stock, 2= categories
 
+  void _showAddArticleDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    final quantityController = TextEditingController();
+  }
+
+  @override
   void initState() {
     super.initState();
     fetch();
@@ -57,21 +63,6 @@ class _ArticleState extends State<Article> {
         MenuItem menuItem = menuItems[index];
         return Slidable(
           key: ValueKey(menuItem.itemId),
-          startActionPane: ActionPane(
-            extentRatio: 0.25,
-            motion: const DrawerMotion(),
-            children: [
-              SlidableAction(
-                onPressed: (context) {
-                  _navigateToEditMenuItem(context, menuItem);
-                },
-                backgroundColor: Colors.blueGrey.shade200,
-                foregroundColor: Colors.white,
-                icon: Icons.edit,
-                label: 'Edit',
-              ),
-            ],
-          ),
           endActionPane: ActionPane(
             extentRatio: 0.25,
             motion: const DrawerMotion(),
@@ -121,6 +112,9 @@ class _ArticleState extends State<Article> {
                   )
                 : const Icon(Icons.image_not_supported),
             title: Text(menuItem.name),
+            onTap: () {
+              _navigateToEditMenuItem(context, menuItem);
+            },
           ),
         );
       },
@@ -208,85 +202,98 @@ class _ArticleState extends State<Article> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(20.0),
-                    decoration: BoxDecoration(
-                      color: Config.specialBlue,
-                      borderRadius: BorderRadius.circular(10.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 7,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
+                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        // --- Menu btn ---
+                        // --- Produit btn ---
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            elevation: isButtonASelected ? 5 : 0,
+                            elevation: buttonASelected ==0 ? 5 : 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5.0),
                             ),
                             padding: const EdgeInsets.symmetric(
                               vertical: 12.0,
-                              horizontal: 50.0,
                             ),
-                            backgroundColor: isButtonASelected
-                                ? Colors.white
-                                : Config.specialBlue,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              isButtonASelected = true;
-                            });
-                          },
-                          child: Text('Menu',
-                              style: TextStyle(
-                                  color: isButtonASelected
-                                      ? Config.specialBlue
-                                      : Colors.white)),
-                        ),
-                        // --- Stock btn ---
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            elevation: isButtonASelected ? 0 : 5,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12.0,
-                              horizontal: 50.0,
-                            ),
-                            backgroundColor: isButtonASelected
+                            backgroundColor: buttonASelected==0
                                 ? Config.specialBlue
                                 : Colors.white,
                           ),
                           onPressed: () {
                             setState(() {
-                              isButtonASelected = false;
+                              buttonASelected = 0;
+                            });
+                          },
+                          child: Text('Produits',
+                              style: TextStyle(
+                                  color: buttonASelected ==0
+                                      ? Colors.white
+                                      : Config.specialBlue)),
+                        ),
+                        // --- Stock btn ---
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: buttonASelected ==1 ? 0 : 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12.0,
+                            ),
+                            backgroundColor: buttonASelected ==1
+                                 ? Config.specialBlue
+                                 : Colors.white,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              buttonASelected = 1;
                             });
                           },
                           child: Text(
                             'Stock',
                             style: TextStyle(
-                                color: isButtonASelected
-                                    ? Colors.white
-                                    : Config.specialBlue),
+                                color: buttonASelected==1
+                                ? Colors.white
+                                : Config.specialBlue,),
                           ),
-                        )
+                        ),
+                        //---Catégories btn---
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: buttonASelected ==2 ? 5 : 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12.0,
+                            ),
+                            backgroundColor: buttonASelected==2
+                                ? Config.specialBlue
+                                : Colors.white,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              buttonASelected = 2;
+                            });
+                          },
+                          child: Text('Catégories',
+                              style: TextStyle(
+                                  color: buttonASelected ==2
+                                      ? Colors.white
+                                      : Config.specialBlue)),
+                        ),
                       ],
                     ),
-                  ),
+                
                   const SizedBox(height: 20),
                   Expanded(
-                    child: isButtonASelected
+                    child: buttonASelected == 0
                         ? ItemMenuList(cafeProvider.getMenuItems)
-                        : stockList(stockProvider.Stocks),
+                        : buttonASelected == 1
+                            ? stockList(stockProvider.Stocks)
+                            : buttonASelected == 2
+                                ? stockList(stockProvider.Stocks)
+                                : Container(), // Add a default case
                   ),
                 ],
               ),
@@ -294,6 +301,13 @@ class _ArticleState extends State<Article> {
           }
         },
       ),
+      floatingActionButton: buttonASelected == 1
+      ? FloatingActionButton(
+        onPressed: () => _showAddArticleDialog(context), //ajouter info article
+        backgroundColor: Config.specialBlue,
+        child: Icon(Icons.add, color: Colors.white),
+      )
+      : null,
     );
   }
 }
