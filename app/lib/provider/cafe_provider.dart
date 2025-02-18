@@ -55,6 +55,61 @@ class CafeProvider with ChangeNotifier {
     }
     return _cafesListRoles;
   }
+   /// Updates category name and description
+  void updateCategoryDetails({
+    required String oldCategoryName,
+    required String newCategoryName,
+    required String newDescription,
+  }) {
+    if (_selectedCafe != null) {
+      for (var item in _selectedCafe!.menuItems) {
+        if (item.category == oldCategoryName) {
+          item.category = newCategoryName;
+          item.description = newDescription;
+        }
+      }
+      notifyListeners();
+    }
+  }
+
+      // TODO: updated data to backend
+      //CafeService().updateMenuItems(_selectedCafe!.cafeId, _selectedCafe!.menuItems);
+   // }
+ // }
+//}
+
+/// Updates selected item list in category
+  void updateCategoryItems(List<String> itemsIds, String newCategory){
+    if(_selectedCafe != null){
+      for(var item in _selectedCafe!.menuItems){
+        if(itemsIds.contains(item.itemId)){
+          item.category = newCategory;
+        } else if(item.category == newCategory){
+          item.category = "Autres";
+        }
+      }
+      notifyListeners();
+    }
+  }
+  //TODO: update data to backend
+
+  /// Add new category with selected items
+  void addNewCategory(String newCategoryName, String newDescription, List<String> selectedItemsIds){
+    if(_selectedCafe != null){
+      bool categoryExists = _selectedCafe!.menuItems.any((item) => item.category == newCategoryName);
+
+      if(categoryExists){
+        _errorMessage = "La catégorie existe déjà";
+      } else {
+        for(var item in _selectedCafe!.menuItems){
+          if(selectedItemsIds.contains(item.itemId)){
+            item.category = newCategoryName;
+          }
+        }
+        notifyListeners();
+      }
+    }
+  }
 
   Future<List<CafeRoleInfo>> getAdminCafe(String username) async {
     // Fetch all cafes first
