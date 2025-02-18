@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-
+import 'package:app/screens/others%20screens/categorie.dart';
 class Article extends StatefulWidget {
   const Article({super.key});
 
@@ -200,6 +200,15 @@ class _ArticleState extends State<Article> {
       ),
     );
   }
+//Ajouter pour test page categorie
+  void _navigateToCategoryPage() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) =>  const CategoryPage(),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -296,6 +305,7 @@ class _ArticleState extends State<Article> {
                             setState(() {
                               buttonASelected = 2;
                             });
+                            _navigateToCategoryPage();
                           },
                           child: Text('Catégories',
                               style: TextStyle(
@@ -312,8 +322,6 @@ class _ArticleState extends State<Article> {
                         ? ItemMenuList(cafeProvider.getMenuItems)
                         : buttonASelected == 1
                             ? stockList(stockProvider.Stocks)
-                            : buttonASelected == 2
-                                ? stockList(stockProvider.Stocks)
                                 : Container(), // Add a default case
                   ),
                 ],
