@@ -1,25 +1,37 @@
 import 'package:flutter/material.dart';
 
 class MyButton extends StatelessWidget {
-  final void Function()? onTap;
-  final String text;
+    final String text;
+    final bool isLoading;
+    final VoidCallback onTap;
 
-  const MyButton({super.key, required this.text, this.onTap});
+    const MyButton({
+        Key? key,
+        required this.text,
+        this.isLoading = false,
+        required this.onTap,
+    }) : super(key: key);
 
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 138, 199, 249),
-          borderRadius: BorderRadius.circular(10),
+    @override
+    Widget build(BuildContext context) {
+        return ElevatedButton(
+        onPressed: isLoading ? null : onTap,
+        style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         ),
-        padding: const EdgeInsets.all(25),
-        margin: const EdgeInsets.symmetric(horizontal: 25),
-        child: Center(
-          child: Text(text),
-        ),
-      ),
-    );
-  }
+        child: isLoading
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                    SizedBox(width: 18, height: 18, child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )),
+                    SizedBox(width: 12),
+                    Text("Connexion...", style: TextStyle(color: Colors.white)),
+                ],
+                )
+            : Text(text),
+        );
+    }
 }

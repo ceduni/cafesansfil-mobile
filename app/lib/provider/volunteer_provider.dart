@@ -1,6 +1,6 @@
 import 'package:app/config.dart';
-import 'package:app/modeles/Cafe.dart';
-import 'package:app/modeles/Volunteer.dart';
+import 'package:app/models/Cafe.dart';
+import 'package:app/models/Volunteer.dart';
 import 'package:app/services/volunteerService.dart';
 import 'package:flutter/material.dart';
 

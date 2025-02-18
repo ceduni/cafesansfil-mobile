@@ -1,4 +1,4 @@
-import 'package:app/modeles/Cafe.dart';
+import 'package:app/models/Cafe.dart';
 import 'package:app/services/CafeService.dart';
 import 'package:flutter/material.dart';
 

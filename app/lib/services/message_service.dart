@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/services/auth_service.dart';
 import 'package:app/config.dart';
-import 'package:app/modeles/message_model.dart';
+import 'package:app/models/message_model.dart';
 
 class MessageService {
   final AuthService _authService = AuthService();

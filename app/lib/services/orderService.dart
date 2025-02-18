@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:app/config.dart';
-import 'package:app/modeles/Order%20models/Order.dart';
-import 'package:app/modeles/Order%20models/OrderItem.dart';
+import 'package:app/models/Order%20models/Order.dart';
+import 'package:app/models/Order%20models/OrderItem.dart';
 import 'package:http/http.dart' as http;
 
 class OrderService {

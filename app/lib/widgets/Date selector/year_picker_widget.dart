@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class YearPickerWidget extends StatefulWidget {
-  final int initialYear = DateTime.now().year;
-  final int firstYear = 2023;
-  final int lastYear = DateTime.now().year;
+//   final int initialYear = DateTime.now().year;
+//   final int firstYear = Config.firstYear;
+//   final int lastYear = DateTime.now().year;
 
   YearPickerWidget();
 
@@ -15,55 +15,119 @@ class YearPickerWidget extends StatefulWidget {
 }
 
 class _YearPickerWidgetState extends State<YearPickerWidget> {
-  int? _selectedYear;
+    int _selectedYear = DateTime.now().year;
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedYear = DateTime.now().year;
-  }
-
-  Widget styleButton({required String text}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.white, // Couleur de fond du bouton
-        borderRadius: BorderRadius.circular(100), // Coins arrondis
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Config.specialBlue, // Couleur du texte
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        final DateTime? picked = await showDatePicker(
-          context: context,
-          initialDate: DateTime(_selectedYear!),
-          firstDate: DateTime(widget.firstYear),
-          lastDate: DateTime(widget.lastYear),
-          initialDatePickerMode: DatePickerMode.year,
+    void _showYearPicker(BuildContext context) async {
+        final int? pickedYear = await showDialog<int>(
+            context: context,
+            builder: (BuildContext context) {
+                return YearPickerDialog(
+                    currentYear: _selectedYear,
+                );
+            },
         );
 
-        if (picked != null && picked.year != _selectedYear) {
-          setState(() {
-            _selectedYear = picked.year;
-            context.read<OrderProvider>().setCurrentYear(picked.year);
-            context.read<OrderProvider>().updateHistogramData(picked.year);
-            context.read<OrderProvider>().updateColorChartData(picked.year);
-            context.read<OrderProvider>().updateTurnOverAndProfit(picked.year);
-          });
+        if (pickedYear != null) {
+            setState(() {
+                _selectedYear = pickedYear;
+                context.read<OrderProvider>().setCurrentYear(_selectedYear);
+                context.read<OrderProvider>().updateHistogramData(_selectedYear);
+                context.read<OrderProvider>().updateColorChartData(_selectedYear);
+                context.read<OrderProvider>().updateTurnOverAndProfit(_selectedYear);
+            });
         }
-      },
-      child: styleButton(text: '${_selectedYear!}'),
-    );
-  }
+    }
+
+    Widget styleButton({required String text}) {
+        return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+            decoration: BoxDecoration(
+                color: Colors.white, // Couleur de fond du bouton
+                borderRadius: BorderRadius.circular(100), // Coins arrondis
+            ),
+            child: Text(text, style: TextStyle(color: Color(0xFF222222), fontSize: 14, fontWeight: FontWeight.bold),),
+        );
+    }
+        
+    @override
+    Widget build(BuildContext context) {
+        return SizedBox(
+            width: 200,
+            child: InkWell(
+            onTap: () => _showYearPicker(context),
+            child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                color: Colors.blue.shade100,
+                borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                children: [
+                    Expanded(
+                    child: Text(
+                        _selectedYear.toString(),
+                        style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                    ),
+                    ),
+                    const Icon(Icons.arrow_drop_down),
+                ],
+                ),
+            ),
+            ),
+        );
+    }
+
 }
+
+class YearPickerDialog extends StatelessWidget {
+  final int currentYear;
+  final int itemCount; // Number of years to show; default is 50.
+
+  const YearPickerDialog({
+    Key? key,
+    required this.currentYear,
+    this.itemCount = 10,
+  }) : super(key: key);
+
+    @override
+    Widget build(BuildContext context) {
+        return AlertDialog(
+            title: const Text('Sélectionner une année'),
+            content: ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxHeight: 300, // Limit the height
+                    maxWidth: MediaQuery.of(context).size.width * 0.8, // Limit the width
+                ),
+                child: SingleChildScrollView(
+                    child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: List.generate(itemCount, (index) {
+                        final year = DateTime.now().year - 9 + index;
+                        return GestureDetector(
+                        onTap: () {
+                            Navigator.of(context).pop(year);
+                        },
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text('$year', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,),
+                            ),
+                        ),
+                        );
+                    }),
+                    ),
+                ),
+            ),
+        );
+    }
+}
+

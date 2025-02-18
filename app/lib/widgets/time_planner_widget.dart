@@ -1,6 +1,6 @@
 import 'package:app/config.dart';
-import 'package:app/modeles/Cafe.dart';
-import 'package:app/modeles/Shift.dart';
+import 'package:app/models/Cafe.dart';
+import 'package:app/models/Shift.dart';
 import 'package:app/provider/auth_provider.dart';
 import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/shift_provider.dart';

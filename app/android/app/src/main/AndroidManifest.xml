@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Camera Permission -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    
+    <!-- Camera Feature (optional but recommended)
+         If your app should still work without a camera (e.g., tablet users), set android:required="false". -->
+    <!-- <uses-feature android:name="android.hardware.camera" android:required="true"/> -->
+
     <application
         android:label="app"
         android:name="${applicationName}"
@@ -40,6 +47,12 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="com.google.zxing.client.android.SCAN"/>
         </intent>
     </queries>
 </manifest>

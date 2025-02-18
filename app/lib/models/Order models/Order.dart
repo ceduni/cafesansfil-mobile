@@ -1,4 +1,4 @@
-import 'package:app/modeles/Stock.dart';
+import 'package:app/models/Stock.dart';
 
 import 'OrderItem.dart';
 

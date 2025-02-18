@@ -1,4 +1,4 @@
-import 'package:app/modeles/message_model.dart';
+import 'package:app/models/message_model.dart';
 import 'package:app/provider/message_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

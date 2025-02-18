@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:app/config.dart';
 import 'package:http/http.dart' as http;
-import 'package:app/modeles/Shift.dart';
+import 'package:app/models/Shift.dart';
 
 class ShiftService {
   final String baseUrl = '${Config.baseUrl}';

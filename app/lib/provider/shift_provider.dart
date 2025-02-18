@@ -1,4 +1,4 @@
-import 'package:app/modeles/Shift.dart';
+import 'package:app/models/Shift.dart';
 import 'package:app/services/shiftService.dart';
 import 'package:flutter/material.dart';
 

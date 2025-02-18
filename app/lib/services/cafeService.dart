@@ -1,46 +1,37 @@
 import 'dart:convert';
+import 'package:app/config.dart';
 import 'package:http/http.dart' as http;
-import 'package:app/modeles/Cafe.dart';
+import 'package:app/models/Cafe.dart';
 
 class CafeService {
-  Future<List<Cafe>> getAllCafeList() async {
-    final response = await http.get(
-        Uri.parse(
-            'https://cafesansfil-api-r0kj.onrender.com/api/cafes?sort_by=name&page=1&limit=40'),
-        headers: {
-          'Content-Type': 'application/json',
-        });
-    if (response.statusCode == 200) {
-      /*final List<dynamic> cafesJson =
-          json.decode(response.body);*/ // Decode the response body
-      final List<dynamic> cafesJson = json
-          .decode(utf8.decode(response.bodyBytes)); // Decode the response body
+    /// Fetches a list of cafes sorted by name.
+    Future<List<Cafe>> getAllCafeList() async {
+        final uri = Uri.parse('${Config.apiUrl}/cafes?sort_by=name&page=1&limit=40');
+        final response = await http.get(
+            uri,
+            headers: { 'Content-Type': 'application/json', });
 
-      // Mapping through the list of cafes and converting to Cafe objects
-      List<Cafe> cafes = cafesJson.map((json) {
-        return Cafe.fromJson(json);
-      }).toList();
+        if (response.statusCode == 200) {
+            final List<dynamic> cafesJson = json.decode(utf8.decode(response.bodyBytes)); // Decode the response body
 
-      return cafes;
-    } else {
-      throw Exception('Failed to load cafes');
+            return cafesJson.map((json) => Cafe.fromJson(json)).toList();
+        } else {
+            throw Exception('Failed to load cafes');
+        }
     }
-  }
 
-  Future<Cafe> getCafeBySlug(String cafeSlug) async {
-    final response = await http.get(
-        Uri.parse(
-            'https://cafesansfil-api-r0kj.onrender.com/api/cafes/$cafeSlug'),
-        headers: {
-          'Content-Type': 'application/json',
-        });
+    /// Fetches a single cafe using its slug.
+    Future<Cafe> getCafeBySlug(String cafeSlug) async {
+        final uri = Uri.parse('${Config.apiUrl}/cafes/$cafeSlug');
+        final response = await http.get(
+            uri,
+            headers: { 'Content-Type': 'application/json' });
 
-    if (response.statusCode == 200) {
-      //final data = jsonDecode(response.body);
-      final data = jsonDecode(utf8.decode(response.bodyBytes));
-      return Cafe.fromJson(data);
-    } else {
-      throw Exception('Failed to load cafe: ${response.statusCode}');
+        if (response.statusCode == 200) {
+            final data = jsonDecode(utf8.decode(response.bodyBytes));
+            return Cafe.fromJson(data);
+        } else {
+            throw Exception('Failed to load cafe: ${response.statusCode}');
+        }
     }
-  }
 }

@@ -1,6 +1,6 @@
 import 'package:app/services/message_service.dart';
 import 'package:flutter/material.dart';
-import '../modeles/message_model.dart';
+import '../models/message_model.dart';
 
 class MessageProvider with ChangeNotifier {
   final MessageService _messageService = MessageService();
