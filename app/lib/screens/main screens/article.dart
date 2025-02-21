@@ -1,9 +1,9 @@
 import 'package:app/config.dart';
-import 'package:app/modeles/Cafe.dart';
-import 'package:app/modeles/Stock.dart';
+import 'package:app/models/Cafe.dart';
+import 'package:app/models/Stock.dart';
 import 'package:app/provider/cafe_provider.dart';
 import 'package:app/provider/stock_provider.dart';
-import 'package:app/screens/others%20screens/editMenuItem.dart';
+import 'package:app/screens/article/editMenuItem.dart';
 import 'package:app/screens/side%20bar/side_bar.dart';
 import 'package:app/services/StockService.dart';
 import 'package:flutter/material.dart';
