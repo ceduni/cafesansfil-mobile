@@ -32,7 +32,9 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
     if (newCategoryName.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(" Le nom de la catégorie est requise")),
+          content: Text(" Le nom de la catégorie est requise",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.red),
           );
           return;
     }
@@ -52,12 +54,6 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Nouvelle catégorie"),
-        actions: [
-          IconButton(
-            onPressed: _saveCategory,
-            icon: const Icon(Icons.check),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -73,22 +69,30 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
             TextField(
               controller: _descriptionController,
               decoration: const InputDecoration(labelText: "Description de la catégorie"),
+              maxLines: null, minLines: 3, keyboardType: TextInputType.multiline,
             ),
             const SizedBox(height: 20),
             const Text(
-              "Sélectionner les items à ajouter à cette catégorie",
+              "Items de cette catégorie",
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 10),
 
-            Expanded(
-              child: Consumer<CafeProvider>(
+            SizedBox(
+              height: 400,
+              child: Container( decoration: BoxDecoration(border: Border.all(color: Colors.grey, width:1),
+              borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.all(2),
+              child: Scrollbar(
+                thumbVisibility: true,
+                child: Consumer<CafeProvider>(
                 builder: (context, cafeProvider, child) {
                   List menuItems = cafeProvider.getMenuItems;
 
                   return menuItems.isEmpty
                       ? const Center(child: Text("Aucun produit trouvé"))
                       :ListView.builder(
+                        shrinkWrap: true,
                         itemCount: menuItems.length,
                         itemBuilder: (context, index) {
                           var item = menuItems[index];
@@ -107,9 +111,21 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                 },
               ),
             ),
+              ),
+            ),
           ],
         ),
       ),
+      //boutton créer nouvelle catégorie
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: _saveCategory,
+        backgroundColor: Colors.grey,
+        icon: const Icon(Icons.save, color: Colors.white),
+        label: const Text("Créer catégorie",
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

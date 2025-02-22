@@ -20,6 +20,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
+  List<String> selectedCategories = [];
 
 
   @override
@@ -30,6 +31,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
     _imageUrlController.text = widget.menuItem.imageUrl;
     _priceController.text = widget.menuItem.price.toString();
     _tagsController.text = widget.menuItem.tags.join(', ');
+    selectedCategories = List.from(widget.menuItem.categories);
   }
 
   @override
@@ -60,7 +62,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
       imageUrl: _imageUrlController.text,
       price: double.parse(_priceController.text),
       inStock: widget.menuItem.inStock,
-      category: widget.menuItem.category,
+      categories: selectedCategories,
       options: widget.menuItem.options,
     );
 
@@ -68,16 +70,16 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
       // Get the cafe slug
       Cafe? selectedCafe =
           Provider.of<CafeProvider>(context, listen: false).selectedCafe;
+     
       String cafeSlug = selectedCafe!.slug;
       String itemSlug = widget.menuItem.slug;
       String message =
           await StockService().updateMenuItem(cafeSlug, itemSlug, updatedItem);
-      Provider.of<CafeProvider>(context, listen: false)
-          .setSelectedCafe(selectedCafe.cafeId);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(message),
         backgroundColor: Colors.blue[400],
       ));
+      Navigator.pop(context);
 
     
       
@@ -98,7 +100,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
         title: Text('Edit of $name'),
         actions: [
           IconButton(
-            icon: Icon(Icons.edit, size: 26, color: Colors.black,), onPressed: () {  },
+            icon: Icon(Icons.edit, size: 26, color: Colors.black,), onPressed: _saveMenuItem,
           )
         ],
       ),
@@ -129,6 +131,38 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
               decoration:
                   const InputDecoration(labelText: 'Tags (comma separated)'),
             ),
+            // Categories
+           /* const SizedBox(height: 20),
+            Consumer<CafeProvider>(builder: (context,CafeProvider,child){
+              List<String> allCategories = CafeProvider.getMenuItems.expand((item)=>item.categories).toSet().toList();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Categories', style: TextStyle(fontSize: 16),
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    children: allCategories.map((category){
+                      return FilterChip(
+                        label: Text(category),
+                        selected: selectedCategories.contains(category),
+                        onSelected: (selected){
+                          setState(() {
+                            if(selected){
+                              selectedCategories.add(category);
+                            }else{
+                              selectedCategories.remove(category);
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+            ),
+                ],
+              );
+            },
+            ),*/
           ],
         ),
       ),
