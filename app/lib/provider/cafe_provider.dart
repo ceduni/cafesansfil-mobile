@@ -98,31 +98,6 @@ class CafeProvider with ChangeNotifier {
     }
   }
   //TODO: update data to backend
-
-  /// Add new category with selected items
-  void addNewCategory(String newCategoryName, String newDescription, List<String> selectedItemsIds) {
-  if (_selectedCafe != null) {
-    bool categoryExists = _selectedCafe!.menuItems
-        .any((item) => item.categories.contains(newCategoryName));
-
-    if (categoryExists) {
-      _errorMessage = "La catégorie existe déjà";
-      notifyListeners();
-      return;
-    }
-
-    // Add category to selected items
-    for (var item in _selectedCafe!.menuItems) {
-      if (selectedItemsIds.contains(item.itemId)) {
-        if (!item.categories.contains(newCategoryName)) {
-          item.categories.add(newCategoryName);
-        }
-      }
-    }
-    
-    notifyListeners();
-  }
-}
   }
 
   Future<List<CafeRoleInfo>> getAdminCafe(String username) async {
@@ -150,5 +125,27 @@ class CafeProvider with ChangeNotifier {
     notifyListeners(); // Notify listeners that the selected cafe has changed
   }
 
-  void addNewCategory(String newCategoryName, String newDescription, List<String> selectedItemsIds) {}
+  void addNewCategory(String newCategoryName, String newDescription, List<String> selectedItemsIds) {
+    if (_selectedCafe != null) {
+    bool categoryExists = _selectedCafe!.menuItems
+        .any((item) => item.categories.contains(newCategoryName));
+
+    if (categoryExists) {
+      _errorMessage = "La catégorie existe déjà";
+      notifyListeners();
+      return;
+    }
+
+    // Add category to selected items
+    for (var item in _selectedCafe!.menuItems) {
+      if (selectedItemsIds.contains(item.itemId)) {
+        if (!item.categories.contains(newCategoryName)) {
+          item.categories.add(newCategoryName);
+        }
+      }
+    }
+    
+    notifyListeners();
+  }
+}
 }

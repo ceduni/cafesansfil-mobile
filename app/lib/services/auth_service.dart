@@ -21,7 +21,6 @@ class AuthService {
                 'client_id': 'string', // Mettez votre Client ID ici
                 'client_secret': 'string' // Mettez votre Client Secret ici
             });
-
         if (response.statusCode == 200) {
             final data = jsonDecode(response.body);
 
@@ -91,8 +90,8 @@ class AuthService {
             throw Exception("No token found");
         }
 
-        final response = await http.post(
-            Uri.parse('${Config.apiUrl}/auth/test-token'),
+        final response = await http.get(
+            Uri.parse('${Config.apiUrl}/users/me'),
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer $token',

@@ -56,7 +56,7 @@ class StockService {
 
     // Create a map of the updated item
     final Map<String, dynamic> body = {
-      "category": item.category,
+      "category": item.categories,
       "description": item.description,
       "image_url": item.imageUrl,
       "in_stock": item.inStock,

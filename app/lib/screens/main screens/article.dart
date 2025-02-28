@@ -168,7 +168,7 @@ class _ArticleState extends State<Article> {
                   await stockService.removeMenuItem(cafeSlug, item.slug);
 
                   Provider.of<CafeProvider>(context, listen: false)
-                      .setSelectedCafe(cafeSlug);
+                      .fetchCafe();
                   await fetch();
 
                   // Show success message

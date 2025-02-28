@@ -12,7 +12,7 @@ class CafeService {
             headers: { 'Content-Type': 'application/json', });
 
         if (response.statusCode == 200) {
-            final List<dynamic> cafesJson = json.decode(utf8.decode(response.bodyBytes)); // Decode the response body
+            final List<dynamic> cafesJson = json.decode(utf8.decode(response.bodyBytes))['items']; // Decode the response body
 
             return cafesJson.map((json) => Cafe.fromJson(json)).toList();
         } else {
