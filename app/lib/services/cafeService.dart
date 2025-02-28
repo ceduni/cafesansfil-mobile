@@ -6,15 +6,16 @@ import 'package:app/models/Cafe.dart';
 class CafeService {
     /// Fetches a list of cafes sorted by name.
     Future<List<Cafe>> getAllCafeList() async {
-        final uri = Uri.parse('${Config.apiUrl}/cafes?sort_by=name&page=1&limit=40');
+        final uri = Uri.parse('${Config.apiUrl}/cafes');
         final response = await http.get(
             uri,
             headers: { 'Content-Type': 'application/json', });
 
         if (response.statusCode == 200) {
-            final List<dynamic> cafesJson = json.decode(utf8.decode(response.bodyBytes)); // Decode the response body
-
-            return cafesJson.map((json) => Cafe.fromJson(json)).toList();
+            final List<dynamic> cafesJson = json.decode(utf8.decode(response.bodyBytes))['items'];
+            final List<Cafe> cafes = cafesJson.map((json) => Cafe.fromJson(json)).toList();
+            print("DEBUG: ${cafes.length} cafes fetched");
+            return cafes;
         } else {
             throw Exception('Failed to load cafes');
         }

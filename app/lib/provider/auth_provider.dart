@@ -28,6 +28,7 @@ class AuthProvider extends ChangeNotifier {
     Future<void> login(String email, String password) async {
     try {
         _token = await _authService.login(email, password);
+        
         await _authService.storeUserDetails();
         notifyListeners(); // Notify listeners that the login state has changed
     } catch (e) {

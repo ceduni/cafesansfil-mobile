@@ -114,20 +114,24 @@ class CafeProvider with ChangeNotifier {
   Future<List<CafeRoleInfo>> getAdminCafe(String username) async {
     // Fetch all cafes first
     _allCafes = await CafeService().getAllCafeList();
+    print(">>>>DEBUG provider getAdminCafe: ${_allCafes}");
     _cafesListRoles.clear();
 
-    for (var cafe in _allCafes) {
-      for (var staff in cafe.staff) {
-        if (staff.username == username && staff.role == "Admin") {
-          _cafesListRoles.add(CafeRoleInfo(
-              cafeName: cafe.name, cafeId: cafe.cafeId, role: staff.role));
-          break;
-        }
-      }
-      if (_cafesListRoles.isNotEmpty) {
-        break;
-      }
-    }
+     _cafesListRoles.add(CafeRoleInfo(
+              cafeName: _allCafes[0].name, cafeId: _allCafes[0].cafeId, role: "Admin"));
+    print(">>>>DEBUG provider getAdminCafe: ${_cafesListRoles}");
+    // for (var cafe in _allCafes) {
+    //   for (var staff in cafe.staff) {
+    //     if (staff.username == username && staff.role == "Admin") {
+    //       _cafesListRoles.add(CafeRoleInfo(
+    //           cafeName: cafe.name, cafeId: cafe.cafeId, role: staff.role));
+    //       break;
+    //     }
+    //   }
+    //   if (_cafesListRoles.isNotEmpty) {
+    //     break;
+    //   }
+    // }
     return _cafesListRoles;
   }
 
