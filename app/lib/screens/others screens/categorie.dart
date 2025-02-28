@@ -14,7 +14,7 @@ class CategoryPage extends StatelessWidget {
       body: Consumer<CafeProvider>(
         builder: (context, cafeProvider, child) {
           List<String> categories = cafeProvider.getMenuItems
-              .map((item) => item.category) // Get categories from menu items
+              .expand((item) => item.categories) // Get categories from menu items
               .toSet()
               .toList(); // 
 

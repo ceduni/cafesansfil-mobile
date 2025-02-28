@@ -29,7 +29,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
 
     //Get selected items
     for (var item in cafeProvider.getMenuItems) {
-      selectedItems[item.itemId] = item.category == widget.categoryName;
+      selectedItems[item.itemId] = item.categories.contains(widget.categoryName);
     }
   }
   void _toggleEdit() {

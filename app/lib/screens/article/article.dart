@@ -8,6 +8,7 @@ import 'package:app/screens/side%20bar/side_bar.dart';
 import 'products_tab.dart';
 import 'stock_tab.dart';
 import 'categories_tab.dart';
+import 'package:app/screens/others%20screens/categorie.dart';
 
 class Article extends StatefulWidget {
     const Article({Key? key}) : super(key: key);
@@ -24,6 +25,7 @@ class _ArticleState extends State<Article> with SingleTickerProviderStateMixin {
         super.initState();
         _tabController = TabController(length: 3, vsync: this);
         // Fetch data once the widget is initialized.
+        _tabController.addListener(_handleTabChange);
         fetchData();
     }
 
@@ -32,6 +34,16 @@ class _ArticleState extends State<Article> with SingleTickerProviderStateMixin {
         if (!mounted) return;
         await Provider.of<CafeProvider>(context, listen: false).fetchCafe();
     }
+//tab category pour l'instant
+    void _handleTabChange() {
+    if (_tabController.index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const CategoryPage()),
+      );
+      _tabController.index = 0;
+    }
+  }
 
     @override
     void dispose() {
@@ -72,7 +84,6 @@ class _ArticleState extends State<Article> with SingleTickerProviderStateMixin {
                     ProductsTab(menuItems: cafeProvider.getMenuItems),
                     StockTab(stocks: stockProvider.Stocks),
                     // TODO: Replace with the actual categories list when available.
-                    CategoriesTab(categories: cafeProvider.getMenuItems),
                 ],
                 );
             }

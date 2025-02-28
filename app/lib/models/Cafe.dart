@@ -189,7 +189,7 @@ class MenuItem {
   String imageUrl;
   double price;
   bool inStock;
-  String category;
+  List<String> categories;
   List<MenuItemOption> options;
 
   MenuItem({
@@ -201,7 +201,7 @@ class MenuItem {
     required this.imageUrl,
     required this.price,
     required this.inStock,
-    required this.category,
+    required this.categories,
     required this.options,
   });
 
@@ -215,7 +215,7 @@ class MenuItem {
       imageUrl: json['image_url'],
       price: double.parse(json['price'].toString()),
       inStock: json['in_stock'],
-      category: json['category'],
+      categories: List<String>.from(['category']??[]),
       options: List<MenuItemOption>.from(
           json['options'].map((x) => MenuItemOption.fromJson(x))),
     );
