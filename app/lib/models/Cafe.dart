@@ -39,7 +39,7 @@ class Cafe {
 
   factory Cafe.fromJson(Map<String, dynamic> json) {
     return Cafe(
-      cafeId: json['cafe_id'],
+      cafeId: json['id'],
       name: json['name'],
       slug: json['slug'],
       previousSlugs: List<String>.from(json['previous_slugs']),
@@ -221,7 +221,7 @@ class MenuItem {
       imageUrl: json['image_url'],
       price: double.parse(json['price'].toString()),
       inStock: json['in_stock'],
-      categories: List<String>.from(['category']??[]),
+      categories: List<String>.from(['category']),
       options: List<MenuItemOption>.from(
           json['options'].map((x) => MenuItemOption.fromJson(x))),
     );
