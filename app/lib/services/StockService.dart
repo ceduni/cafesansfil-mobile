@@ -36,9 +36,7 @@ class StockService {
 
   Future<MenuItem> getMenuItem(String cafeSlug, String itemSlug) async {
     final response = await http.get(
-      Uri.parse(
-        "https://cafesansfil-api-r0kj.onrender.com/api/cafes/$cafeSlug/menu/$itemSlug",
-      ),
+      Uri.parse("https://cafesansfil-api-r0kj.onrender.com/api/cafes/$cafeSlug/menu/$itemSlug"),
     );
 
     if (response.statusCode == 200) {
@@ -56,7 +54,7 @@ class StockService {
 
     // Create a map of the updated item
     final Map<String, dynamic> body = {
-      "category": item.category,
+      // "category": item.category,
       "description": item.description,
       "image_url": item.imageUrl,
       "in_stock": item.inStock,
