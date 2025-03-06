@@ -23,27 +23,19 @@ class AuthService {
             });
         if (response.statusCode == 200) {
             final data = jsonDecode(response.body);
-
+            
             if (data['access_token'] != null) {
                 String accessToken = data['access_token'];
                 String refreshToken = data['refresh_token'];
                 await storeToken(accessToken, refreshToken);
+
                 return accessToken;
-        } else {
-            throw Exception('Auth Token not found in response: ${response.body}');
-        }
+            } else {
+                throw Exception('Auth Token not found in response: ${response.body}');
+            }
         } else {
             throw Exception('Failed to login: ${response.body}');
         }
-    /*
-        if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        User user = User.fromJson(data['user']);
-        await storage.write(key: 'token', value: data['authToken']);
-        return user;
-        } else {
-        throw Exception('Failed to login');
-        }*/
     }
 
     Future<void> logout() async {
@@ -86,6 +78,7 @@ class AuthService {
 
     Future<void> storeUserDetails() async {
         final token = await storage.read(key: 'token');
+        
         if (token == null) {
             throw Exception("No token found");
         }
@@ -136,6 +129,9 @@ class AuthService {
                 'Authorization': 'Bearer $token',
             },
         );
+
+
+      print(">>>> DEBUG getUserCafes");
 
         if (response.statusCode == 200) {
             final List<dynamic> data = jsonDecode(response.body);

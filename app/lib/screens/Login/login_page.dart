@@ -18,7 +18,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-    final TextEditingController _emailController = TextEditingController(text: "admin.tore.et.fraction@umontreal.ca"); // Remove before production
+    final TextEditingController _emailController = TextEditingController(text: "cafesansfil@umontreal.ca"); // Remove before production
     final TextEditingController _passwordController = TextEditingController(text: "Cafepass1"); // Remove before production
     int _selectedRole = 1;
     bool _isProcessing = false;
@@ -54,6 +54,7 @@ class _LoginPageState extends State<LoginPage> {
 
             // Fetch the username.
             String? username = await authProvider.getUsername();
+            
             if (username == null) {
                 _showSnackBar('Login failed: username not found.');
                 return;
@@ -62,7 +63,9 @@ class _LoginPageState extends State<LoginPage> {
 
             // Role-based access checks.
             if (role == 'Admin') {
+                print(">>>>CONNECTED AS ADMIN");
                 final List<CafeRoleInfo> cafeRoles = await cafeProvider.getAdminCafe(username);
+                print(">>>>DEBUG LOGIN_PAGE role: ${cafeRoles}");
                 if (cafeRoles.isEmpty) {
                     _showSnackBar('This user is not an administrator.');
                     return;
@@ -71,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                 if (mounted) Navigator.pushReplacementNamed(context, '/home');
             } else {
                 final List<CafeRoleInfo> cafeRoles = await cafeProvider.getVolunteerCafe(username);
+                
                 if (cafeRoles.isEmpty) {
                     _showSnackBar('No volunteer access found.');
                     return;

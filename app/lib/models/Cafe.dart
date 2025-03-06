@@ -5,15 +5,15 @@ class Cafe {
   List<String> previousSlugs;
   String description;
   String imageUrl;
-  String faculty;
+  // String faculty;
   bool isOpen;
   String? statusMessage;
   List<OpeningHour> openingHours;
   Location location;
-  Contact contact;
-  List<SocialMedia> socialMedia;
-  List<PaymentMethod> paymentMethods;
-  List<AdditionalInfo> additionalInfo;
+  // Contact contact;
+  // List<SocialMedia> socialMedia;
+  // List<PaymentMethod> paymentMethods;
+  // List<AdditionalInfo> additionalInfo;
   List<StaffMember> staff;
   List<MenuItem> menuItems;
 
@@ -24,15 +24,15 @@ class Cafe {
     required this.previousSlugs,
     required this.description,
     required this.imageUrl,
-    required this.faculty,
+    // required this.faculty,
     required this.isOpen,
     this.statusMessage,
     required this.openingHours,
     required this.location,
-    required this.contact,
-    required this.socialMedia,
-    required this.paymentMethods,
-    required this.additionalInfo,
+    // required this.contact,
+    // required this.socialMedia,
+    // required this.paymentMethods,
+    // required this.additionalInfo,
     required this.staff,
     required this.menuItems,
   });
@@ -44,24 +44,18 @@ class Cafe {
       slug: json['slug'],
       previousSlugs: List<String>.from(json['previous_slugs']),
       description: json['description'],
-      imageUrl: json['image_url'],
-      faculty: json['faculty'],
+      imageUrl: json['logo_url'] ?? json['banner_url'],
+      // faculty: json['faculty'],
       isOpen: json['is_open'],
       statusMessage: json['status_message'],
-      openingHours: List<OpeningHour>.from(
-          json['opening_hours'].map((x) => OpeningHour.fromJson(x))),
+      openingHours: List<OpeningHour>.from(json['opening_hours'].map((x) => OpeningHour.fromJson(x))),
       location: Location.fromJson(json['location']),
-      contact: Contact.fromJson(json['contact']),
-      socialMedia: List<SocialMedia>.from(
-          json['social_media'].map((x) => SocialMedia.fromJson(x))),
-      paymentMethods: List<PaymentMethod>.from(
-          json['payment_methods'].map((x) => PaymentMethod.fromJson(x))),
-      additionalInfo: List<AdditionalInfo>.from(
-          json['additional_info'].map((x) => AdditionalInfo.fromJson(x))),
-      staff: List<StaffMember>.from(
-          json['staff'].map((x) => StaffMember.fromJson(x))),
-      menuItems: List<MenuItem>.from(
-          json['menu_items'].map((x) => MenuItem.fromJson(x))),
+      // contact: Contact.fromJson(json['contact']),
+      // socialMedia: List<SocialMedia>.from(json['social_media'].map((x) => SocialMedia.fromJson(x))),
+      // paymentMethods: List<PaymentMethod>.from(json['payment_methods'].map((x) => PaymentMethod.fromJson(x))),
+      // additionalInfo: List<AdditionalInfo>.from(json['additional_info'].map((x) => AdditionalInfo.fromJson(x))),
+      staff: json['staff'] != null  ? List<StaffMember>.from(json['staff'].map((x) => StaffMember.fromJson(x))) : [],
+      menuItems: json['menu_items'] != null ? List<MenuItem>.from(json['menu_items'].map((x) => MenuItem.fromJson(x))) : [],
     );
   }
 }
