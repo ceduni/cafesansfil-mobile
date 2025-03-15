@@ -5,8 +5,8 @@ class Config {
   Config._();
 
   /// The IP address for local development.
-  static const String ipAddress = "192.168.68.58";
-  // static const String ipAdrress = "10.51.227.175";
+  //static const String ipAddress = "192.168.68.52";
+  static const String ipAddress = "10.51.240.240";
 
   /// The base URL for local API requests.
   static const String baseUrl = "http://$ipAddress:3000/api/v1";

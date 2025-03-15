@@ -32,7 +32,7 @@ class _ArticleState extends State<Article> with SingleTickerProviderStateMixin {
     Future<void> fetchData() async {
         await Provider.of<StockProvider>(context, listen: false).fetchStock();
         if (!mounted) return;
-        await Provider.of<CafeProvider>(context, listen: false).fetchCafe();
+        await Provider.of<CafeProvider>(context, listen: false).fetchCafe(Config.cafeSlug);
     }
 //tab category pour l'instant
     void _handleTabChange() {

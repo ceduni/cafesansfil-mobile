@@ -1,5 +1,5 @@
 import 'package:app/models/Cafe.dart';
-import 'package:app/services/CafeService.dart';
+import 'package:app/services/cafeService.dart';
 import 'package:flutter/material.dart';
 
 class CafeProvider with ChangeNotifier {
@@ -18,19 +18,33 @@ class CafeProvider with ChangeNotifier {
   List<Cafe> get allCafes => _allCafes;
   List<CafeRoleInfo> get cafesListRoles => _cafesListRoles;
 
-  CafeProvider() {
-    fetchCafe();
+  /**Map<String, String> _categoryNames ={};
+  Map<String, String> get categoryName =>_categoryNames;
+
+  Future<void> fetchCategory() async{
+    try{
+      _categoryNames = await CafeService().getCategory();
+      notifyListeners();
+    }catch(e){
+      print("ERROR - Failed to fetch category: $e");
+    }
   }
+  **/
 
   List<MenuItem> getMenuItemsbyCategory(String category) {
     return _selectedCafe?.menuItems.where((item) => item.categories.contains(category)).toList() ?? [];
   }
     List<MenuItem> get getMenuItems => _selectedCafe?.menuItems ?? [];
 
-  Future<void> fetchCafe() async {
+  Future<void> fetchCafe(String cafeSlug) async {
     _isLoading = true;
     try {
       _cafe = _selectedCafe;
+      _selectedCafe = await CafeService().getCafeBySlug(cafeSlug);
+      List<MenuItem> fetchMenuItems = await CafeService().getMenuItems(cafeSlug);
+      _selectedCafe!.menuItems = fetchMenuItems; 
+
+        print("DEBUG - Fetched ${_selectedCafe!.menuItems.length} Menu Items");
 
       _isLoading = false;
     } catch (e) {

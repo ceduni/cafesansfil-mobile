@@ -38,6 +38,7 @@ class Cafe {
   });
 
   factory Cafe.fromJson(Map<String, dynamic> json) {
+    print("DEBUG - Données brutes reçues pour Cafe: $json"); // si menu_items est présent
     return Cafe(
       cafeId: json['id'],
       name: json['name'],
@@ -54,8 +55,11 @@ class Cafe {
       // socialMedia: List<SocialMedia>.from(json['social_media'].map((x) => SocialMedia.fromJson(x))),
       // paymentMethods: List<PaymentMethod>.from(json['payment_methods'].map((x) => PaymentMethod.fromJson(x))),
       // additionalInfo: List<AdditionalInfo>.from(json['additional_info'].map((x) => AdditionalInfo.fromJson(x))),
-      staff: json['staff'] != null  ? List<StaffMember>.from(json['staff'].map((x) => StaffMember.fromJson(x))) : [],
-      menuItems: json['menu_items'] != null ? List<MenuItem>.from(json['menu_items'].map((x) => MenuItem.fromJson(x))) : [],
+      staff: (json['staff'] != null && json['staff'] is List)
+    ? json['staff'].map<StaffMember>((x) => StaffMember.fromJson(x)).toList()
+    : [],
+      menuItems: json['items'] != null ? List<MenuItem>.from(json['items'].map((x) {print("DEBUG - MenuItem trouvé: $x"); // ✅ Voir chaque article dans menu_items
+       MenuItem.fromJson(x);})) : [],
     );
   }
 }
@@ -174,8 +178,8 @@ class StaffMember {
 
   factory StaffMember.fromJson(Map<String, dynamic> json) {
     return StaffMember(
-      username: json['username'],
-      role: json['role'],
+      username: json['id'].toString(),
+      role: json['role'].toString() ,
     );
   }
 }
@@ -206,16 +210,18 @@ class MenuItem {
   });
 
   factory MenuItem.fromJson(Map<String, dynamic> json) {
+    print("DEBUG - MenuItem reçu: $json"); // les articles sont bien extraits
     return MenuItem(
-      itemId: json['item_id'],
-      name: json['name'],
-      slug: json['slug'],
-      tags: List<String>.from(json['tags']),
-      description: json['description'],
-      imageUrl: json['image_url'],
-      price: double.parse(json['price'].toString()),
+      itemId: json['item_id'] ?? '',
+      name: json['name'] ?? '',
+      slug: json['slug']?? '',
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
+      description: json['description'] ?? '',
+      imageUrl: json['image_url']?? '',
+      price: json['price'] != null ? double.tryParse(json['price'].toString()) ?? 0.0 : 0.0,
       inStock: json['in_stock'],
-      categories: List<String>.from(['category']),
+      categories: json['category_ids'] != null
+        ? List<String>.from(json['category_ids']) : [],
       options: List<MenuItemOption>.from(
           json['options'].map((x) => MenuItemOption.fromJson(x))),
     );

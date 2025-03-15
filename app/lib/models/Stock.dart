@@ -14,19 +14,19 @@ class Stock {
   });
 
   factory Stock.fromJson(Map<String, dynamic> json) {
-    print("converting json to stock");
+    print("DEBUG - converting json to stock:");
     return Stock(
-      id: json['_id'],
-      itemName: json['item_name'],
-      category: json['category'],
-      quantity: json['quantity'],
+      id: json['_id']?.toString() ?? 'ID_INCONNU',
+      itemName: json['item_name'] ?? 'ITEM_INCONNU',
+      category: json['category_id']?.toString() ?? 'Catégorie inconnue',
+      quantity: json['quantity']!= null ? int.tryParse(json['quantity'].toString()) ?? 0 : 0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'item_name': itemName,
+      'itemName': itemName,
       'category': category,
       'quantity': quantity,
     };

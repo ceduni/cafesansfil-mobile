@@ -10,52 +10,73 @@ class CategoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Categories")),
+      appBar: AppBar(title: const Text("Catégories")),
       body: Consumer<CafeProvider>(
         builder: (context, cafeProvider, child) {
-          List<String> categories = cafeProvider.getMenuItems
-              .expand((item) => item.categories) // Get categories from menu items
-              .toSet()
-              .toList(); // 
+          List<String> categories = List<String>.from(
+            cafeProvider.getMenuItems
+                .expand((item) => item.categories)
+                .toSet(), // Suppression des doublons
+          );
+        print("DEBUG - Catégories récupérées: $categories"); /////////ici
+          if (categories.isEmpty) {
+            return const Center(
+              child: Text(
+                "Aucune catégorie disponible",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            );
+          }
 
-          return GridView.builder(
+          return Padding(
             padding: const EdgeInsets.all(16.0),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Two columns
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 2,
-            ),
-            itemCount: categories.length ,
-            itemBuilder: (context, index) {
-              String category = categories[index];
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // Deux colonnes
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.2, // Ajustement de la hauteur des cases
+              ),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                String category = categories[index];
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CategoryDetailPage(categoryName: category),
+                        builder: (context) =>
+                            CategoryDetailPage(categoryName: category),
                       ),
                     );
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey,
+                      color: Colors.grey[300], // Arrière-plan des cases
                       borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
                     ),
-
-                  child: Center(
-                    child: Text(
-                      category,
-                      style: const TextStyle(
+                    child: Center(
+                      child: Text(
+                        category,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
@@ -63,12 +84,11 @@ class CategoryPage extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const NewCategoryPage()),
+            MaterialPageRoute(builder: (context) => const NewCategoryPage()),
           );
         },
-        backgroundColor: Colors.grey,
-        child: const Icon(Icons.add,color: Colors.white),
+        backgroundColor: Colors.blueAccent,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
