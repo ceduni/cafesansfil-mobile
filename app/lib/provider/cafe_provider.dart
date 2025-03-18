@@ -18,18 +18,19 @@ class CafeProvider with ChangeNotifier {
   List<Cafe> get allCafes => _allCafes;
   List<CafeRoleInfo> get cafesListRoles => _cafesListRoles;
 
-  /**Map<String, String> _categoryNames ={};
-  Map<String, String> get categoryName =>_categoryNames;
+  List<Categories> _categoryNames =[];
+  List<Categories> get categoryNames =>_categoryNames;
 
-  Future<void> fetchCategory() async{
+  Future<void> fetchCategory(String cafeSlug) async{
     try{
-      _categoryNames = await CafeService().getCategory();
+      _categoryNames = await CafeService().getCategories(cafeSlug);
+       print("DEBUG - Fetched Categories: $_categoryNames");
       notifyListeners();
     }catch(e){
       print("ERROR - Failed to fetch category: $e");
     }
   }
-  **/
+
 
   List<MenuItem> getMenuItemsbyCategory(String category) {
     return _selectedCafe?.menuItems.where((item) => item.categories.contains(category)).toList() ?? [];
@@ -74,16 +75,16 @@ class CafeProvider with ChangeNotifier {
   }
    /// Updates category name and description
   void updateCategoryDetails({
-    required String oldCategoryName,
-    required String newCategoryName,
+    required Categories oldCategory,
+    required Categories newCategory,
     required String newDescription,
   }) {
     if (_selectedCafe != null) {
       for (var item in _selectedCafe!.menuItems) {
-        if (item.categories.contains(oldCategoryName)) {
-          item.categories.remove(oldCategoryName);
-          if(!item.categories.contains(newCategoryName)){
-            item.categories.add(newCategoryName);
+        if (item.categories.any((cat) => cat.id == oldCategory.id)) {
+        item.categories.removeWhere((cat) => cat.id == oldCategory.id);
+        if (!item.categories.any((cat) => cat.id == newCategory.id)) {
+          item.categories.add(newCategory);
           }
         }
       }
@@ -98,21 +99,22 @@ class CafeProvider with ChangeNotifier {
 //}
 
 /// Updates selected item list in category
-  void updateCategoryItems(List<String> itemsIds, String newCategory){
+  void updateCategoryItems(List<String> itemsIds, Categories newCategory){
     if(_selectedCafe != null){
       for(var item in _selectedCafe!.menuItems){
         if(itemsIds.contains(item.itemId)){
-          if (!item.categories.contains(newCategory)) {
-            item.categories.add(newCategory);
-          }else{
-            item.categories.remove(newCategory);
+          if (!item.categories.any((cat) => cat.id == newCategory.id)) {
+          item.categories.add(newCategory);
+        } else {
+          item.categories.removeWhere((cat) => cat.id == newCategory.id);
+        }
           }
       }
       notifyListeners();
     }
   }
   //TODO: update data to backend
-  }
+
 
   Future<List<CafeRoleInfo>> getAdminCafe(String username) async {
     // Fetch all cafes first
@@ -143,10 +145,10 @@ class CafeProvider with ChangeNotifier {
     notifyListeners(); // Notify listeners that the selected cafe has changed
   }
 
-  void addNewCategory(String newCategoryName, String newDescription, List<String> selectedItemsIds) {
+  void addNewCategory(Categories newCategory, String newDescription, List<String> selectedItemsIds) {
     if (_selectedCafe != null) {
     bool categoryExists = _selectedCafe!.menuItems
-        .any((item) => item.categories.contains(newCategoryName));
+        .any((item) => item.categories.any((cat) => cat.id == newCategory.id));
 
     if (categoryExists) {
       _errorMessage = "La catégorie existe déjà";
@@ -157,8 +159,8 @@ class CafeProvider with ChangeNotifier {
     // Add category to selected items
     for (var item in _selectedCafe!.menuItems) {
       if (selectedItemsIds.contains(item.itemId)) {
-        if (!item.categories.contains(newCategoryName)) {
-          item.categories.add(newCategoryName);
+        if (!item.categories.any((cat) => cat.id == newCategory.id)) {
+          item.categories.add(newCategory);
         }
       }
     }

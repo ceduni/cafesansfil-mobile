@@ -193,7 +193,7 @@ class MenuItem {
   String imageUrl;
   double price;
   bool inStock;
-  List<String> categories;
+  List<Categories> categories;
   List<MenuItemOption> options;
 
   MenuItem({
@@ -221,7 +221,7 @@ class MenuItem {
       price: json['price'] != null ? double.tryParse(json['price'].toString()) ?? 0.0 : 0.0,
       inStock: json['in_stock'],
       categories: json['category_ids'] != null
-        ? List<String>.from(json['category_ids']) : [],
+        ? List<Categories>.from(json['category_ids']) : [],
       options: List<MenuItemOption>.from(
           json['options'].map((x) => MenuItemOption.fromJson(x))),
     );
@@ -258,4 +258,24 @@ class CafeRoleInfo {
 
   CafeRoleInfo(
       {required this.cafeName, required this.cafeId, required this.role});
+}
+
+class Categories {
+  final String id;
+  final String name;
+  final String description;
+
+  Categories({
+    required this.id,
+    required this.name,
+    required this.description,
+  });
+
+  factory Categories.fromJson(Map<String, dynamic> json) {
+    return Categories(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+    );
+  }
 }

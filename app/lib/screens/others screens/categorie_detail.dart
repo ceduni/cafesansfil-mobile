@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app/provider/cafe_provider.dart';
+import 'package:app/models/Cafe.dart';
+
 
 class CategoryDetailPage extends StatefulWidget {
   final String categoryName;
+  final String categoryId;
 
-  const CategoryDetailPage({super.key, required this.categoryName});
+  const CategoryDetailPage({super.key, required this.categoryName, required this.categoryId});
 
   @override
   _CategoryDetailPageState createState() => _CategoryDetailPageState();
@@ -29,7 +32,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
 
     //Get selected items
     for (var item in cafeProvider.getMenuItems) {
-      selectedItems[item.itemId] = item.categories.contains(widget.categoryName);
+      selectedItems[item.itemId] = item.categories.any((cat) => cat.name == widget.categoryName);
     }
   }
   void _toggleEdit() {
@@ -39,19 +42,28 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
 
     if (!isEditing) {
       // Save changes
-      Provider.of<CafeProvider>(context, listen: false).updateCategoryDetails(
-            oldCategoryName: widget.categoryName,
-            newCategoryName: _controller.text,
-            newDescription: _descriptionController.text,
-          );
+      var cafeProvider = Provider.of<CafeProvider>(context, listen: false);
+      Categories? oldCategory = cafeProvider.categoryNames.firstWhere(
+      (cat) => cat.name == widget.categoryName,
+    orElse: () => Categories(id: "", name: widget.categoryName, description: ""),
+);
+
+Categories? newCategory = cafeProvider.categoryNames.firstWhere(
+    (cat) => cat.name == _controller.text,
+    orElse: () => Categories(id: "", name: _controller.text, description: _descriptionController.text),
+);
+cafeProvider.updateCategoryDetails(
+  oldCategory: oldCategory,
+  newCategory: newCategory,
+  newDescription: _descriptionController.text,
+);
       //Save selected items in category
       List<String> selectedItemsIds =  selectedItems.entries
           .where((entry) => entry.value)
           .map((entry) => entry.key)
           .toList();
 
-      Provider.of<CafeProvider>(context, listen: false).updateCategoryItems(
-        selectedItemsIds, _controller.text);
+      cafeProvider.updateCategoryItems(selectedItemsIds, newCategory);
     }
   }
 
@@ -113,7 +125,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                                   });
                                 },
                               )
-                              : (item.category == widget.categoryName)
+                              : (item.categories.any((cat) => cat.name == widget.categoryName))
                               ? ListTile(
                                 title: Text(item.name),
                                 subtitle: Text("\$${item.price.toStringAsFixed(2)}"),

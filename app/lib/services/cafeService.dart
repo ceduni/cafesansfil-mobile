@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:app/config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/models/Cafe.dart';
 
@@ -51,6 +52,18 @@ class CafeService {
     }
     }
 
-    //Future <Map<String, String>> getCategory() async {
-     //   final uri = Uri.parse('${Config.apiUrl}/menu/c
+    Future<List<Categories>> getCategories(String cafeSlug) async {
+    final uri = Uri.parse('${Config.apiUrl}/cafes/$cafeSlug/menu/categories');
+    final response = await http.get(uri, headers: {'Content-Type': 'application/json'});
+    print("DEBUG - API Response Categories: ${utf8.decode(response.bodyBytes)}"); //debug
+
+    if (response.statusCode == 200) {
+      final List<dynamic> categoriesJson = json.decode(utf8.decode(response.bodyBytes));
+
+      return categoriesJson.map((json) => Categories.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load categories');
+    }
+  }
+
 }

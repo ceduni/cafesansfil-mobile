@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app/provider/cafe_provider.dart';
+import 'package:app/models/Cafe.dart';
+
 
 class NewCategoryPage extends StatefulWidget {
   const NewCategoryPage({super.key});
@@ -45,10 +47,16 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
         .map((entry) => entry.key)
         .toList();
 
-        Provider.of<CafeProvider>(context, listen: false).addNewCategory(
-          newCategoryName, newDescription, selectedItemsIds);
-          Navigator.pop(context); //retour page categorie
-  }
+        Categories newCategory = Categories(
+          id: DateTime.now().toString(),
+          name: newCategoryName,
+          description: newDescription
+        );
+
+        Provider.of<CafeProvider>(context, listen: false)
+        .addNewCategory(newCategory, newDescription, selectedItemsIds);
+        Navigator.pop(context);}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

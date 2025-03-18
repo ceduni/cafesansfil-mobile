@@ -31,7 +31,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
     _imageUrlController.text = widget.menuItem.imageUrl;
     _priceController.text = widget.menuItem.price.toString();
     _tagsController.text = widget.menuItem.tags.join(', ');
-    selectedCategories = List.from(widget.menuItem.categories);
+    selectedCategories = widget.menuItem.categories.map((category) => category.id).toList();
   }
 
   @override
@@ -52,6 +52,10 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
       ));
       return;
     }
+    List<Categories> fullCategories = Provider.of<CafeProvider>(context, listen: false).categoryNames;
+    List<Categories> selectedCategoryItems= fullCategories
+      .where((category) => selectedCategories.contains(category.id))
+      .toList();
     // Create a new MenuItem using the old one with updated values
     MenuItem updatedItem = MenuItem(
       itemId: widget.menuItem.itemId,
@@ -62,7 +66,7 @@ class _EditMenuItemScreenState extends State<EditMenuItemScreen> {
       imageUrl: _imageUrlController.text,
       price: double.parse(_priceController.text),
       inStock: widget.menuItem.inStock,
-      categories: selectedCategories,
+      categories: selectedCategoryItems,
       options: widget.menuItem.options,
     );
 
