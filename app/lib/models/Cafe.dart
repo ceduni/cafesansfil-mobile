@@ -211,6 +211,8 @@ class MenuItem {
 
   factory MenuItem.fromJson(Map<String, dynamic> json) {
     print("DEBUG - MenuItem reçu: $json"); // les articles sont bien extraits
+    print("DEBUG - category_ids before processing: ${json['category_ids']}");
+
     return MenuItem(
       itemId: json['item_id'] ?? '',
       name: json['name'] ?? '',
@@ -221,7 +223,10 @@ class MenuItem {
       price: json['price'] != null ? double.tryParse(json['price'].toString()) ?? 0.0 : 0.0,
       inStock: json['in_stock'],
       categories: json['category_ids'] != null
-        ? List<Categories>.from(json['category_ids']) : [],
+       ? List<Categories>.from(
+            (json['category_ids'] as List).map((id) => Categories(id: id, name: "", description: ""))
+          )
+        : [],
       options: List<MenuItemOption>.from(
           json['options'].map((x) => MenuItemOption.fromJson(x))),
     );

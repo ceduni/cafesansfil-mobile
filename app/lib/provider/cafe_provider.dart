@@ -25,6 +25,17 @@ class CafeProvider with ChangeNotifier {
     try{
       _categoryNames = await CafeService().getCategories(cafeSlug);
        print("DEBUG - Fetched Categories: $_categoryNames");
+       if (_selectedCafe != null) {
+      for (var item in _selectedCafe!.menuItems) {
+       
+        item.categories = item.categories.map((cat) {
+          return _categoryNames.firstWhere(
+            (fullCat) => fullCat.id == cat.id,
+            orElse: () => cat,
+          );
+        }).toList();
+      }
+    }
       notifyListeners();
     }catch(e){
       print("ERROR - Failed to fetch category: $e");
