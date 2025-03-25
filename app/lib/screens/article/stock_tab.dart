@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app/models/Stock.dart';
+import 'package:app/screens/article/addItemsManual.dart';
 
 class StockTab extends StatefulWidget {
   final List<Stock> stocks;
@@ -18,6 +19,12 @@ class _StockTabState extends State<StockTab> {
       _isMenuOpen = !_isMenuOpen;
     });
   }
+  void _navigateToAddItemsManual() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddItemsManual()),
+    );
+  }
 
   Widget _buildMenuItem({
     required String label,
@@ -27,6 +34,8 @@ class _StockTabState extends State<StockTab> {
   }) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 180),
+      child: GestureDetector(
+        onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -44,6 +53,7 @@ class _StockTabState extends State<StockTab> {
           overflow: TextOverflow.ellipsis,),
           ),
         ],
+      ),
       ),
       ),
     );
@@ -92,9 +102,7 @@ class _StockTabState extends State<StockTab> {
                     label: 'Entrée manuelle',
                     icon: Icons.edit,
                     backgroundColor: Colors.blue,
-                    onTap: () {
-                      print("Entrée manuelle selected");
-                    },
+                    onTap: _navigateToAddItemsManual,
                   ),
                 ],
               ),

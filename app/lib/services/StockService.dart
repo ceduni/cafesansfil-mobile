@@ -7,9 +7,12 @@ import 'package:app/services/auth_service.dart';
 import 'package:app/widgets/FlashMessage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:app/models/fournisseur.dart';
+
 
 class StockService {
   final String baseUrl = "${Config.baseUrl}/stocks";
+  final String fournisseursUrl = "${Config.baseUrl}/fournisseurs";
   final AuthService _authService = AuthService();
 
   StockService({dynamic});
@@ -31,6 +34,17 @@ class StockService {
       }
     } else {
       throw Exception('Failed to load stock from $baseUrl');
+    }
+  }
+   /// Fetch Fournisseurs (temporaire until API dans backend)
+  Future<List<Fournisseur>> fetchFournisseurs() async {
+    final response = await http.get(Uri.parse(fournisseursUrl));
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonData = json.decode(response.body);
+      return jsonData.map((json) => Fournisseur.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load fournisseurs from $fournisseursUrl');
     }
   }
 
@@ -140,6 +154,27 @@ class StockService {
       print('Failed to remove menu item. Status code: ${response.statusCode}');
       print('Response body: ${response.body}');
       throw Exception('Failed to remove menu item from cafe $cafeSlug');
+    }
+  }
+  Future<void> addStockItem(Stock stock) async {
+    final String url = "${Config.baseUrl}/stocks";
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(stock.toJson()),
+      );
+
+      if (response.statusCode == 201) {
+        print("Stock item added successfully");
+      } else {
+        throw Exception("Failed to add stock item: ${response.body}");
+      }
+    } catch (e) {
+      throw Exception("Error adding stock item: $e");
     }
   }
 

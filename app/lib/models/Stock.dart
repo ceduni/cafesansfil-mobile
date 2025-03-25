@@ -4,6 +4,9 @@ class Stock {
   final String id;
   final String itemName;
   final String category;
+  final String description;
+  final String imageUrl;
+  final String fournisseur;
   int quantity;
 
   Stock({
@@ -11,6 +14,9 @@ class Stock {
     required this.itemName,
     required this.category,
     required this.quantity,
+    required this.description,
+    required this.imageUrl,
+    required this.fournisseur,
   });
 
   factory Stock.fromJson(Map<String, dynamic> json) {
@@ -20,6 +26,9 @@ class Stock {
       itemName: json['item_name'] ?? 'ITEM_INCONNU',
       category: json['category_id']?.toString() ?? 'Catégorie inconnue',
       quantity: json['quantity']!= null ? int.tryParse(json['quantity'].toString()) ?? 0 : 0,
+      description: json['description'] ?? 'Pas de description',
+      imageUrl: json['imageUrl'] ?? '',
+      fournisseur: json['fournisseur'] ?? 'Aucun fournisseur',
     );
   }
 
@@ -29,6 +38,9 @@ class Stock {
       'itemName': itemName,
       'category': category,
       'quantity': quantity,
+      'description': description,
+      'imageUrl': imageUrl,
+      'fournisseur': fournisseur,
     };
   }
 
