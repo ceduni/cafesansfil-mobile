@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:app/models/Stock.dart';
 import 'package:app/screens/article/addItemsManual.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class StockTab extends StatefulWidget {
   final List<Stock> stocks;
@@ -19,6 +22,56 @@ class _StockTabState extends State<StockTab> {
       _isMenuOpen = !_isMenuOpen;
     });
   }
+//barcode scanner
+  Future<void> _scanBarcodeOpenForm() async {
+  String barcode = await FlutterBarcodeScanner.scanBarcode(
+      "#ff6666", "Annuler", true, ScanMode.BARCODE);
+
+  if (barcode != "-1") {
+    Map<String, dynamic>? productDetails = await fetchProductDetails(barcode);
+    
+    if (productDetails != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddItemsManual(initialData: productDetails),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Produit non trouvé."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+}
+Future<Map<String, dynamic>?> fetchProductDetails(String barcode) async {
+  final apiUrl = Uri.parse('https://world.openfoodfacts.org/api/v0/product/$barcode.json');
+  try {
+    final response = await http.get(apiUrl);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data["status"] == 1) {
+        final product = data["product"];
+        return {
+          "name": product["product_name"] ?? "",
+          "description": product["generic_name"] ?? "",
+          "imageUrl": product["image_url"] ?? "",
+          "category": product["categories"]?.split(",").first ?? "",
+        };
+      }
+    }
+  } catch (e) {
+    print("Erreur de récupération: $e");
+  }
+
+  return null;
+}
+
+
   void _navigateToAddItemsManual() {
     Navigator.push(
       context,
@@ -86,9 +139,7 @@ class _StockTabState extends State<StockTab> {
                     label: 'Scan codebar',
                     icon: Icons.qr_code_scanner,
                     backgroundColor: Colors.blue,
-                    onTap: () {
-                      print("Scan codebar selected");
-                    },
+                    onTap: _scanBarcodeOpenForm,
                   ),
                   _buildMenuItem(
                     label: 'Scan reçu',

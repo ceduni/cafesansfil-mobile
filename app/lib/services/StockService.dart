@@ -38,15 +38,42 @@ class StockService {
   }
    /// Fetch Fournisseurs (temporaire until API dans backend)
   Future<List<Fournisseur>> fetchFournisseurs() async {
-    final response = await http.get(Uri.parse(fournisseursUrl));
+    await Future.delayed(const Duration(milliseconds: 500)); // Simulate delay
 
-    if (response.statusCode == 200) {
-      List<dynamic> jsonData = json.decode(response.body);
-      return jsonData.map((json) => Fournisseur.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load fournisseurs from $fournisseursUrl');
-    }
-  }
+  return [
+    Fournisseur(
+      id: '1',
+      name: 'Fournisseur A',
+      contactPerson: 'Alice',
+      email: 'alice@fournisseur.com',
+      phone: '123-456-7890',
+      address: '123 Rue Principale',
+      website: 'https://fournisseur-a.com',
+      productsSupplied: ['Café', 'Sucre'],
+    ),
+    Fournisseur(
+      id: '2',
+      name: 'Fournisseur B',
+      contactPerson: 'Bob',
+      email: 'bob@fournisseur.com',
+      phone: '987-654-3210',
+      address: '456 Rue Secondaire',
+      website: 'https://fournisseur-b.com',
+      productsSupplied: ['Lait', 'Thé'],
+    ),
+    Fournisseur(
+      id: '3',
+      name: 'Fournisseur C',
+      contactPerson: 'Clara',
+      email: 'clara@fournisseur.com',
+      phone: '555-666-7777',
+      address: '789 Boulevard Tiers',
+      website: 'https://fournisseur-c.com',
+      productsSupplied: ['Jus', 'Eau'],
+    ),
+  ];
+}
+
 
   Future<MenuItem> getMenuItem(String cafeSlug, String itemSlug) async {
     final response = await http.get(
