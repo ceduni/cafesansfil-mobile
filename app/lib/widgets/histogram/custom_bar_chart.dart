@@ -63,7 +63,7 @@ class AnnualChartState extends State<CustomBarChart> {
     }
 
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: meta,
       child: Text(text, style: style),
     );
   }
@@ -76,7 +76,7 @@ class AnnualChartState extends State<CustomBarChart> {
       fontSize: 10,
     );
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: meta,
       child: Text(
         meta.formattedValue,
         style: style,

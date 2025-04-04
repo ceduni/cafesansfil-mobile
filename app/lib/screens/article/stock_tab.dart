@@ -24,6 +24,21 @@ class _StockTabState extends State<StockTab> {
   }
 //barcode scanner
   Future<void> _scanBarcodeOpenForm() async {
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Scaffold(
+        appBar: AppBar(
+          title: const Text("Scanner un code-barres"),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+    ),
+  );
   String barcode = await FlutterBarcodeScanner.scanBarcode(
       "#ff6666", "Annuler", true, ScanMode.BARCODE);
 
@@ -71,6 +86,7 @@ Future<Map<String, dynamic>?> fetchProductDetails(String barcode) async {
   return null;
 }
 
+//recu scanner
 
   void _navigateToAddItemsManual() {
     Navigator.push(

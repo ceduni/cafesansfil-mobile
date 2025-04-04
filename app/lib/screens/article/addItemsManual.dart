@@ -5,12 +5,15 @@ import 'package:app/models/Stock.dart';
 import 'package:app/provider/stock_provider.dart';
 import 'package:app/models/fournisseur.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 class AddItemsManual extends StatefulWidget {
   final Map<String, dynamic>? initialData;
 
-  const AddItemsManual({Key? key, this.initialData}) : super(key: key);
+  const AddItemsManual({key, this.initialData}) : super(key: key);
 
 
   @override
@@ -52,7 +55,70 @@ class AddItemsManualState extends State<AddItemsManual> {
     _fournisseurController.dispose();
     super.dispose();
   }
+//fonction utiliser scan code bar quand utilisateur deja dans le formulaire
+Future<void> _scanBarcodeOpenForm() async {
+  await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text("Scanner un code-barres"),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          body: const Center(child: CircularProgressIndicator()),
+        ),
+      ),
+    );
+  String barcode = await FlutterBarcodeScanner.scanBarcode(
+      "#ff6666", "Annuler", true, ScanMode.BARCODE);
+
+  if (barcode != "-1") {
+    Map<String, dynamic>? productDetails = await fetchProductDetails(barcode);
     
+    if (productDetails != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddItemsManual(initialData: productDetails),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Produit non trouvé."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+  if (context.mounted) Navigator.pop(context);
+}
+Future<Map<String, dynamic>?> fetchProductDetails(String barcode) async {
+  final apiUrl = Uri.parse('https://world.openfoodfacts.org/api/v0/product/$barcode.json');
+  try {
+    final response = await http.get(apiUrl);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data["status"] == 1) {
+        final product = data["product"];
+        return {
+          "name": product["product_name"] ?? "",
+          "description": product["generic_name"] ?? "",
+          "imageUrl": product["image_url"] ?? "",
+          "category": product["categories"]?.split(",").first ?? "",
+        };
+      }
+    }
+  } catch (e) {
+    print("Erreur de récupération: $e");
+  }
+
+  return null;
+}    
 //sauvegarder l'article
   void _saveStockItem() async {
     if (_nameController.text.isEmpty ||
@@ -65,6 +131,7 @@ class AddItemsManualState extends State<AddItemsManual> {
       return;
     }
     final stockProvider = Provider.of<StockProvider>(context, listen: false);
+    selectedFournisseur = _fournisseurController.text;
 
 // Add new fournisseur to the list if it doesn't exist
 if (!stockProvider.fournisseurs.any((f) => f.name == selectedFournisseur)) {
@@ -103,7 +170,7 @@ if (!stockProvider.fournisseurs.any((f) => f.name == selectedFournisseur)) {
         backgroundColor: Colors.green,
       ));
 
-      Navigator.pop(context); // Close the screen after saving
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Erreur lors de l\'ajout du stock: $e'),
@@ -120,69 +187,98 @@ if (!stockProvider.fournisseurs.any((f) => f.name == selectedFournisseur)) {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nom du produit'),
-            ),
-            TextField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description', alignLabelWithHint: true),
-              maxLines: 4,
-              keyboardType: TextInputType.multiline,
-            ),
-            TextField(
-              controller: _quantityController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Quantité'),
-            ),
-            TextField(
-              controller: _imageUrlController,
-              decoration: const InputDecoration(labelText: 'Image URL'),
-            ),
-            const SizedBox(height: 20),
+        child: Consumer<StockProvider>(
+          builder: (context, stockProvider, child) {
+            final fournisseurNames =
+                stockProvider.fournisseurs.map((f) => f.name).toList();
 
-            // Fournisseur Selection (Dropdown)
-            Consumer<StockProvider>(
-  builder: (context, stockProvider, child) {
-    final fournisseurNames = stockProvider.fournisseurs.map((f) => f.name).toList();
-
-    return TypeAheadFormField<String>(
-      textFieldConfiguration: TextFieldConfiguration(
-        controller: _fournisseurController,
-        decoration: const InputDecoration(
-          labelText: 'Fournisseur',
-          border: OutlineInputBorder(),
+            return ListView(
+              children: [
+                ElevatedButton.icon(
+              onPressed: _scanBarcodeOpenForm,
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text("Scanner un code-barres"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+            ),
+                TextField(
+                  controller: _nameController,
+                  decoration:
+                      const InputDecoration(labelText: 'Nom du produit'),
+                ),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 4,
+                  keyboardType: TextInputType.multiline,
+                ),
+                TextField(
+                  controller: _quantityController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Quantité'),
+                ),
+                TextField(
+                  controller: _imageUrlController,
+                  decoration: const InputDecoration(labelText: 'Image URL'),
+                ),
+                const SizedBox(height: 20),
+                TypeAheadField<String>(
+                  suggestionsCallback: (pattern) {
+                    return fournisseurNames
+                        .where((name) => name
+                            .toLowerCase()
+                            .contains(pattern.toLowerCase()))
+                        .toList();
+                  },
+                  builder: (context, controller, focusNode) {
+                    controller.text = _fournisseurController.text;
+                    return TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: const InputDecoration(
+                        labelText: 'Fournisseur',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        selectedFournisseur = value;
+                        _fournisseurController.text = value;
+                      },
+                    );
+                  },
+                  itemBuilder: (context, suggestion) {
+                    return ListTile(title: Text(suggestion));
+                  },
+                  onSelected: (suggestion) {
+                    setState(() {
+                      selectedFournisseur = suggestion;
+                      _fournisseurController.text = suggestion;
+                    });
+                  },
+                  emptyBuilder: (context) => const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("Aucun fournisseur trouvé. Tapez pour en créer un."),
+                  ),
+                  decorationBuilder: (context, child) {
+                    return Material(
+                      type: MaterialType.card,
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(8),
+                      child: child,
+                    );
+                  },
+                  offset: const Offset(0, 12),
+                  constraints: const BoxConstraints(maxHeight: 300),
+                ),
+              ],
+            );
+          },
         ),
-        onChanged: (value) {
-          selectedFournisseur = value;
-        },
       ),
-      suggestionsCallback: (pattern) {
-        return fournisseurNames
-            .where((name) => name.toLowerCase().contains(pattern.toLowerCase()))
-            .toList();
-      },
-      itemBuilder: (context, suggestion) {
-        return ListTile(title: Text(suggestion));
-      },
-      onSuggestionSelected: (suggestion) {
-        setState(() {
-          selectedFournisseur = suggestion;
-        });
-      },
-      noItemsFoundBuilder: (context) => const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Text("Aucun fournisseur trouvé. Tapez pour en créer un."),
-      ),
-    );
-  },
-),
-          ],
-        ),
-        ),
         floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 16.0),
         child: Align(
