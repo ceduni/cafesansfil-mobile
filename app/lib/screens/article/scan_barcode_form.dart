@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:app/screens/article/addItemsManual.dart';
+import 'package:app/screens/article/add_items_manual.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class ScanReceiptForm extends StatefulWidget {
-  const ScanReceiptForm({Key? key}) : super(key: key);
+class ScanBarcodeForm extends StatefulWidget {
+  const ScanBarcodeForm({super.key});
 
   @override
-  State<ScanReceiptForm> createState() => _ScanReceiptFormState();
+  State<ScanBarcodeForm> createState() => _ScanBarcodeFormState();
 }
 
-class _ScanReceiptFormState extends State<ScanReceiptForm> {
+class _ScanBarcodeFormState extends State<ScanBarcodeForm> {
   bool _isScanning = true;
 
   Future<Map<String, dynamic>?> _fetchProductDetails(String barcode) async {
@@ -86,7 +86,7 @@ class _ScanReceiptFormState extends State<ScanReceiptForm> {
             left: 20,
             right: 20,
             child: Text(
-              "Placez le code-barres dans la fenêtre",
+              "Placez le code-barres dans l'encadré",
               style: TextStyle(color: Colors.white, fontSize: 16),
               textAlign: TextAlign.center,
             ),

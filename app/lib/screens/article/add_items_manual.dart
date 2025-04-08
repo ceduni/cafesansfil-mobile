@@ -26,7 +26,6 @@ class AddItemsManualState extends State<AddItemsManual> {
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _fournisseurController = TextEditingController();
-
   String? selectedFournisseur;
   String? selectedCategories;
 
@@ -40,6 +39,7 @@ class AddItemsManualState extends State<AddItemsManual> {
     _descriptionController.text = widget.initialData!["description"] ?? "";
     _imageUrlController.text = widget.initialData!["imageUrl"] ?? "";
     selectedCategories = widget.initialData!["category"] ?? "";
+    _quantityController.text = widget.initialData!['quantity'] ?? '';
   }
   if (selectedFournisseur != null) {
     _fournisseurController.text = selectedFournisseur!;

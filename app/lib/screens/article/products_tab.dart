@@ -4,19 +4,19 @@ import 'package:provider/provider.dart';
 import 'package:app/models/Cafe.dart';
 import 'package:app/provider/cafe_provider.dart';
 import 'package:app/services/StockService.dart';
-import 'package:app/screens/article/editMenuItem.dart';
+import 'package:app/screens/article/edit_menu_item.dart';
 
 class ProductsTab extends StatelessWidget {
   final List<MenuItem> menuItems;
 
-  const ProductsTab({Key? key, required this.menuItems}) : super(key: key);
+  const ProductsTab({super.key, required this.menuItems});
 
   @override
   Widget build(BuildContext context) {
-    return ItemMenuList(menuItems);
+    return itemMenuList(menuItems);
   }
 
-  Widget ItemMenuList(List<MenuItem> menuItems) {
+  Widget itemMenuList(List<MenuItem> menuItems) {
     return ListView.builder(
       itemCount: menuItems.length,
       itemBuilder: (context, index) {

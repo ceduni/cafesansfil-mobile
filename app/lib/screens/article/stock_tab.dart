@@ -1,12 +1,13 @@
-import 'package:app/screens/article/scanBarcodeForm.dart';
+import 'package:app/screens/article/scan_barcode_form.dart';
+import 'package:app/screens/article/scan_receipt_form.dart';
 import 'package:flutter/material.dart';
 import 'package:app/models/Stock.dart';
-import 'package:app/screens/article/addItemsManual.dart';
+import 'package:app/screens/article/add_items_manual.dart';
 
 class StockTab extends StatefulWidget {
   final List<Stock> stocks;
 
-  const StockTab({Key? key, required this.stocks}) : super(key: key);
+  const StockTab({super.key, required this.stocks});
 
   @override
   _StockTabState createState() => _StockTabState();
@@ -75,6 +76,7 @@ class _StockTabState extends State<StockTab> {
           );
         },
       ),
+      //button in the form to scan barcode
       floatingActionButton: Stack(
         alignment: Alignment.bottomRight,
         children: [
@@ -102,7 +104,11 @@ class _StockTabState extends State<StockTab> {
                     icon: Icons.receipt,
                     backgroundColor: Colors.blue,
                     onTap: () {
-                      print("Scan reçu selected");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ScanReceiptForm(),
+                        ),
+                      );
                     },
                   ),
                   _buildMenuItem(

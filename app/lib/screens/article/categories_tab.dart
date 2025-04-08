@@ -7,7 +7,7 @@ import 'package:app/screens/others%20screens/new_categorie.dart';
 import 'package:app/models/Cafe.dart';
 
 class CategoriesTab extends StatelessWidget {
-  const CategoriesTab({Key? key}) : super(key: key);
+  const CategoriesTab({super.key});
 
   @override
   Widget build(BuildContext context) {
