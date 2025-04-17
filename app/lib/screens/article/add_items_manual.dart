@@ -5,15 +5,12 @@ import 'package:app/models/Stock.dart';
 import 'package:app/provider/stock_provider.dart';
 import 'package:app/models/fournisseur.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 
 class AddItemsManual extends StatefulWidget {
   final Map<String, dynamic>? initialData;
 
-  const AddItemsManual({key, this.initialData}) : super(key: key);
+  const AddItemsManual({super.key, this.initialData});
 
 
   @override
@@ -55,70 +52,6 @@ class AddItemsManualState extends State<AddItemsManual> {
     _fournisseurController.dispose();
     super.dispose();
   }
-//fonction utiliser scan code bar quand utilisateur deja dans le formulaire
-Future<void> _scanBarcodeOpenForm() async {
-  await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text("Scanner un code-barres"),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          body: const Center(child: CircularProgressIndicator()),
-        ),
-      ),
-    );
-  String barcode = await FlutterBarcodeScanner.scanBarcode(
-      "#ff6666", "Annuler", true, ScanMode.BARCODE);
-
-  if (barcode != "-1") {
-    Map<String, dynamic>? productDetails = await fetchProductDetails(barcode);
-    
-    if (productDetails != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AddItemsManual(initialData: productDetails),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Produit non trouvé."),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-  if (context.mounted) Navigator.pop(context);
-}
-Future<Map<String, dynamic>?> fetchProductDetails(String barcode) async {
-  final apiUrl = Uri.parse('https://world.openfoodfacts.org/api/v0/product/$barcode.json');
-  try {
-    final response = await http.get(apiUrl);
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data["status"] == 1) {
-        final product = data["product"];
-        return {
-          "name": product["product_name"] ?? "",
-          "description": product["generic_name"] ?? "",
-          "imageUrl": product["image_url"] ?? "",
-          "category": product["categories"]?.split(",").first ?? "",
-        };
-      }
-    }
-  } catch (e) {
-    print("Erreur de récupération: $e");
-  }
-
-  return null;
-}    
 //sauvegarder l'article
   void _saveStockItem() async {
     if (_nameController.text.isEmpty ||
@@ -194,7 +127,7 @@ if (!stockProvider.fournisseurs.any((f) => f.name == selectedFournisseur)) {
 
             return ListView(
               children: [
-                ElevatedButton.icon(
+                /**ElevatedButton.icon(
               onPressed: _scanBarcodeOpenForm,
               icon: const Icon(Icons.qr_code_scanner),
               label: const Text("Scanner un code-barres"),
@@ -202,7 +135,7 @@ if (!stockProvider.fournisseurs.any((f) => f.name == selectedFournisseur)) {
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
               ),
-            ),
+            ), **/
                 TextField(
                   controller: _nameController,
                   decoration:
