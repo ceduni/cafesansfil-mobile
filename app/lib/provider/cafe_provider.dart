@@ -110,18 +110,20 @@ class CafeProvider with ChangeNotifier {
 //}
 
 /// Updates selected item list in category
-  void updateCategoryItems(List<String> itemsIds, Categories newCategory){
+  void updateCategoryItems(List<String> selectedItemsIds, Categories newCategory) async{
     if(_selectedCafe != null){
       for(var item in _selectedCafe!.menuItems){
-        if(itemsIds.contains(item.itemId)){
-          if (!item.categories.any((cat) => cat.id == newCategory.id)) {
-          item.categories.add(newCategory);
-        } else {
-          item.categories.removeWhere((cat) => cat.id == newCategory.id);
-        }
-          }
+        final hasCategory = item.categories.any((cat) => cat.id == newCategory.id);
+      final shouldHave = selectedItemsIds.contains(item.itemId);
+
+      if (shouldHave && !hasCategory) {
+        item.categories.add(newCategory);
+      } else if (!shouldHave && hasCategory) {
+        item.categories.removeWhere((cat) => cat.id == newCategory.id);
       }
-      notifyListeners();
+      await CafeService().updateMenuItem(_selectedCafe!.slug,item);
+    }
+    notifyListeners();
     }
   }
   //TODO: update data to backend

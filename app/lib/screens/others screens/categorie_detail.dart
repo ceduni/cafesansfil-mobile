@@ -32,10 +32,11 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
 
     //Get selected items
     for (var item in cafeProvider.getMenuItems) {
-      selectedItems[item.itemId] = item.categories.any((cat) => cat.name == widget.categoryName);
+      final inCategorie = item.categories.any((cat) => cat.id == widget.categoryId);
+      selectedItems[item.itemId] = inCategorie;
     }
   }
-  void _toggleEdit() {
+  void _toggleEdit() async{
     setState(() {
       isEditing = !isEditing;
     });
@@ -43,14 +44,14 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
     if (!isEditing) {
       // Save changes
       var cafeProvider = Provider.of<CafeProvider>(context, listen: false);
-      Categories? oldCategory = cafeProvider.categoryNames.firstWhere(
+      Categories oldCategory = cafeProvider.categoryNames.firstWhere(
       (cat) => cat.name == widget.categoryName,
-    orElse: () => Categories(id: "", name: widget.categoryName, description: ""),
+    orElse: () => Categories(id: widget.categoryId, name: widget.categoryName, description: _descriptionController.text),
 );
 
-Categories? newCategory = cafeProvider.categoryNames.firstWhere(
+Categories newCategory = cafeProvider.categoryNames.firstWhere(
     (cat) => cat.name == _controller.text,
-    orElse: () => Categories(id: "", name: _controller.text, description: _descriptionController.text),
+    orElse: () => Categories(id: oldCategory.id, name: _controller.text, description: _descriptionController.text),
 );
 cafeProvider.updateCategoryDetails(
   oldCategory: oldCategory,
@@ -64,6 +65,11 @@ cafeProvider.updateCategoryDetails(
           .toList();
 
       cafeProvider.updateCategoryItems(selectedItemsIds, newCategory);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Catégorie mise à jour avec succès"),
+          backgroundColor: Colors.green),
+      );
     }
   }
 
@@ -105,14 +111,16 @@ cafeProvider.updateCategoryDetails(
             Expanded(
               child: Consumer<CafeProvider>(
                 builder: (context, cafeProvider, child) {
-                  List menuItems = cafeProvider.getMenuItems;
+                  final menuItems = cafeProvider.getMenuItems;
 
-                  return menuItems.isEmpty
-                      ? const Center(child: Text("Pas de produits dans la catégorie"))
-                      : ListView.builder(
+                  if(menuItems.isEmpty){
+                    const Center(child: Text("Pas de produits dans la catégorie"));
+                  }
+                  return ListView.builder(
                           itemCount: menuItems.length,
                           itemBuilder: (context, index) {
-                            var item = menuItems[index];
+                            final item = menuItems[index];
+                            final inCategory = item.categories.any((cat) => cat.id == widget.categoryId);
                             
                             return isEditing
                               ? CheckboxListTile(
@@ -125,7 +133,7 @@ cafeProvider.updateCategoryDetails(
                                   });
                                 },
                               )
-                              : (item.categories.any((cat) => cat.name == widget.categoryName))
+                              : inCategory
                               ? ListTile(
                                 title: Text(item.name),
                                 subtitle: Text("\$${item.price.toStringAsFixed(2)}"),

@@ -52,6 +52,31 @@ class CafeService {
     }
     }
 
+    //Modify le API après changement dans un item
+    Future<void> updateMenuItem(String cafeSlug, MenuItem item) async {
+    final url = Uri.parse('${Config.apiUrl}/cafes/$cafeSlug/menu/items/${item.itemId}');
+// need to change pcq utilise uri
+    final response = await http.put(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({
+        "name": item.name,
+        "slug": item.slug,
+        "description": item.description,
+        "price": item.price,
+        "in_stock": item.inStock,
+        "category_ids": item.categories.map((c) => c.id).toList(),
+        "tags": item.tags,
+        "image_url": item.imageUrl,
+        "options": item.options.map((o) => o.toJson()).toList()
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to update item ${item.itemId}");
+    }
+  }
+
     Future<List<Categories>> getCategories(String cafeSlug) async {
     final uri = Uri.parse('${Config.apiUrl}/cafes/$cafeSlug/menu/categories');
     final response = await http.get(uri, headers: {'Content-Type': 'application/json'});
